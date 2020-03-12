@@ -59,6 +59,43 @@ void displayUpdate (char *str1, char *str2, int16_t num, char *str3, uint8_t cha
     // Update line on display.
     OLEDStringDraw (text_buffer, 0, charLine);
 }
+/*
+//*****************************************************************************
+// Display function, version for displaying floats
+// The display has 4 rows of 16 characters, with 0, 0 at top left.
+//*****************************************************************************
+void displayUpdateFloat (char *str1, char *str2, float num, char *str3, uint8_t charLine)
+{
+    char text_buffer[17];           //Display fits 16 characters wide.
+
+    // "Undraw" the previous contents of the line to be updated.
+    OLEDStringDraw ("                ", 0, charLine);
+    // Form a new string for the line.  The maximum width specified for the
+    //  number field ensures it is displayed right justified.
+    usnprintf(text_buffer, sizeof(text_buffer), "%s %s %3f %s", str1, str2, num, str3);
+    // Update line on display.
+    OLEDStringDraw (text_buffer, 0, charLine);
+}*/
+
+
+//*****************************************************************************
+// Display function, version for displaying floats
+// The display has 4 rows of 16 characters, with 0, 0 at top left.
+//*****************************************************************************
+void displayUpdateFloat (char *str1, char *str2, float num, char *str3, uint8_t charLine)
+{
+    char text_buffer[17];           //Display fits 16 characters wide.
+    char float_string[5];
+
+    // "Undraw" the previous contents of the line to be updated.
+    OLEDStringDraw ("                ", 0, charLine);
+    // Form a new string for the line.  The maximum width specified for the
+    //  number field ensures it is displayed right justified.
+    sprintf(float_string, "%3.2f\n", num);
+    usnprintf(text_buffer, sizeof(text_buffer), "%s", float_string);
+    // Update line on display.
+    OLEDStringDraw (text_buffer, 0, charLine);
+}
 
 /*********************************************************
  * initAccl
@@ -126,7 +163,7 @@ void initAccl (void)
 /********************************************************
  * Function to read accelerometer
  ********************************************************/
-vector3_t getAcclData (uint8_t unitMode)
+vector3_t getAcclData (void)
 {
     char    fromAccl[] = {0, 0, 0, 0, 0, 0, 0}; // starting address, placeholders for data to be read.
     vector3_t acceleration;
@@ -139,7 +176,7 @@ vector3_t getAcclData (uint8_t unitMode)
     acceleration.y = (fromAccl[4] << 8) | fromAccl[3];
     acceleration.z = (fromAccl[6] << 8) | fromAccl[5];
 
-    // Convert to desired units, if necessary.
+/*    // Convert to desired units, if necessary.
     if (unitMode == GRAV) {
         acceleration.x = acceleration.x / 128; // TODO; enable floats and make this output to two decimal points.
         acceleration.y = acceleration.y / 128;
@@ -149,7 +186,7 @@ vector3_t getAcclData (uint8_t unitMode)
         acceleration.x = acceleration.x / 26; // TODO; enable floats and output to one decimal point.
         acceleration.y = acceleration.y / 26;
         acceleration.z = acceleration.z / 26;
-    }
+    }*/
 
     return acceleration;
 }
