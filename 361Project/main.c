@@ -39,19 +39,71 @@
 #define BUF_SIZE 10
 #define SAMPLE_RATE_HZ 100
 
+//*****************************************************************************
+// Stores the values obtained by the accelerometer into the circular buffer
+//*****************************************************************************
+void store_accl(vector3_t acceleration, circBuf_t *buffer_x, circBuf_t *buffer_y, circBuf_t *buffer_z)
+{
+    writeCircBuf(buffer_x, acceleration.x);
+    writeCircBuf(buffer_y, acceleration.y);
+    writeCircBuf(buffer_z, acceleration.z);
+}
+
+
+
+//*****************************************************************************
+// Calculates the mean of the circular buffer and returns a 3 vector of x, y and z
+//*****************************************************************************
+vector3_t calculate_mean(circBuf_t *buffer_x, circBuf_t *buffer_y, circBuf_t *buffer_z)
+{
+    vector3_t sum;
+    vector3_t average;
+    int i;
+    sum.x = 0;
+    sum.y = 0;
+    sum.z = 0;
+
+    // Sum all values in the circular buffer
+    for (i = 0; i < BUF_SIZE; i++) {
+        sum.x = sum.x + readCircBuf (buffer_x);
+        sum.y = sum.y + readCircBuf (buffer_y);
+        sum.z = sum.z + readCircBuf (buffer_z);
+    }
+    // Divide all values in the circular buffer to get mean
+    average.x = sum.x / BUF_SIZE;
+    average.y = sum.y / BUF_SIZE;
+    average.z = sum.z / BUF_SIZE;
+
+    return average;
+}
+
+
+
+
 /********************************************************
  * main
  ********************************************************/
 int main(void)
 {
-    static circBuf_t inBuffer;        // Buffer of size BUF_SIZE integers (sample values)
+    // Buffer of size BUF_SIZE integers (sample values) for each axis x, y and z
+    static circBuf_t inBuffer_x;
+    static circBuf_t inBuffer_y;
+    static circBuf_t inBuffer_z;
+
+    // Buffer of size BUF_SIZE integers (sample values) for the ADC (CURRENTLY NOT IN USE)
+    static circBuf_t inBuffer;
+
     static uint32_t ulSampCnt;    // Counter for the interrupts
+
 
     // Initialise components
     initClockADC (ulSampCnt, SAMPLE_RATE_HZ);
     initADC (&inBuffer);
     OLEDInitialise ();
     initCircBuf (&inBuffer, BUF_SIZE);
+    initCircBuf (&inBuffer_x, BUF_SIZE);
+    initCircBuf (&inBuffer_y, BUF_SIZE);
+    initCircBuf (&inBuffer_z, BUF_SIZE);
     initButtons();
     initAccl();
 
@@ -59,6 +111,7 @@ int main(void)
 
     // Acceleration code (ripped from readAcc main function)
     vector3_t acceleration;
+    vector3_t mean;
 
     // TODO; enable changing the displayed units
     uint8_t unitMode = UNITS_RAW;
@@ -75,12 +128,21 @@ int main(void)
         SysCtlDelay(SysCtlClockGet() / 24);    // not Approx 2 Hz
 
         acceleration = getAcclData(unitMode);
+        store_accl(acceleration, &inBuffer_x, &inBuffer_y, &inBuffer_z);
+        mean = calculate_mean(&inBuffer_x, &inBuffer_y, &inBuffer_z);
+        // TEST MEAN
+
+
+
+
+
+
 
         switch (unitMode)
         {
         case 0:
             displayUpdate("Accl", "X", acceleration.x, "raw", 1);
-            displayUpdate("Accl", "Y", acceleration.y, "raw", 2);
+            displayUpdate("Accl", "Y", mean.y, "raw", 2);
             displayUpdate("Accl", "Z", acceleration.z, "raw", 3);
             break;
 
@@ -96,6 +158,10 @@ int main(void)
             displayUpdate("Accl", "Z", acceleration.z, "m/s/s", 3);
             break;
         }
+
+
+
+
     }
 /*
     // Loop for display (TODO; turn into task)
@@ -107,6 +173,7 @@ int main(void)
         sum = 0;
         for (i = 0; i < BUF_SIZE; i++)
             sum = sum + readCircBuf (&inBuffer);
+
         // Calculate and display the rounded mean of the buffer contents
         displayMeanVal ((2 * sum + BUF_SIZE) / 2 / BUF_SIZE, ulSampCnt);
 
