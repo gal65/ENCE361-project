@@ -87,6 +87,8 @@ uint8_t checkButton (uint8_t butName);
 // Function to poll buttons and if pushed, increment the mode cycler
 // Returns the new mode
 
+// Function to poll buttons; pushing UP will increment the mode cycle, pushing DOWN will set a flag to logic high.
+// Returns a struct containing the mode cycle and state of the flag
 vector_poll pollButtons(uint8_t dispMode);
 
 #endif /*BUTTONS_H_*/
