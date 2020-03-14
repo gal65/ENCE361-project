@@ -81,11 +81,22 @@ int main(void)
     vector3_t acceleration;
     vector3_float acceleration_floats;
     vector3_t mean_acc;
+    vector3_t offset;
+    vector3_t offset_mean;
+
+    // Initialising offsets to 0
+       offset.x = 0;
+       offset.y = 0;
+       offset.z = 0;
 
     // TODO; enable changing the displayed units
-    uint8_t unitMode = UNITS_RAW;
+       uint8_t unitMode = UNITS_RAW;
+       vector_poll pollData;
 
     OLEDStringDraw ("Accelerometer", 0, 0);
+
+    int init_cycles = 0;
+    int initialised = 0;
 
     while (1)
     {
@@ -95,7 +106,8 @@ int main(void)
 
 
         // Check buttons and update mode if required
-        unitMode = pollButtons(unitMode);
+        pollData = pollButtons(unitMode);
+        unitMode = pollData.dispMode;
 
         // Loop for accelerometer (TODO; turn into task)
         // THIS IS CAUSING THE LONG PRESS BUG, when combined with SysCtlDelay elsewhere (ie in buttons4.c)
@@ -107,18 +119,35 @@ int main(void)
         store_accl(acceleration, &inBuffer_x, &inBuffer_y, &inBuffer_z);
         mean_acc = calculate_mean(&inBuffer_x, &inBuffer_y, &inBuffer_z, BUF_SIZE);
 
+
+        if (initialised == 0) {
+            init_cycles++;
+            if (init_cycles > BUF_SIZE) {
+                initialised = 1;
+                offset = mean_acc;
+            }
+        }
+
+        offset_mean.x = mean_acc.x - offset.x;
+        offset_mean.y = mean_acc.y - offset.y;
+        offset_mean.z = mean_acc.z - offset.z;
+
+        if (pollData.flag == 1) {
+            offset = mean_acc;
+        }
+
         switch (unitMode)
         {
         case 0:
-            displayUpdate("Accl", "X", mean_acc.x, "raw", 1);
-            displayUpdate("Accl", "Y", mean_acc.y, "raw", 2);
-            displayUpdate("Accl", "Z", mean_acc.z, "raw", 3);
+            displayUpdate("Accl", "X", offset_mean.x, "raw", 1);
+            displayUpdate("Accl", "Y", offset_mean.y, "raw", 2);
+            displayUpdate("Accl", "Z", offset_mean.z, "raw", 3);
             break;
 
         case 1:
-            acceleration_floats.x = (float)mean_acc.x / GRAV_CONV;
-            acceleration_floats.y = (float)mean_acc.y / GRAV_CONV;
-            acceleration_floats.z = (float)mean_acc.z / GRAV_CONV;
+            acceleration_floats.x = (float)offset_mean.x / GRAV_CONV;
+            acceleration_floats.y = (float)offset_mean.y / GRAV_CONV;
+            acceleration_floats.z = (float)offset_mean.z / GRAV_CONV;
             ftos(acceleration_floats.x, acc_float_x, 2);
             ftos(acceleration_floats.y, acc_float_y, 2);
             ftos(acceleration_floats.z, acc_float_z, 2);
@@ -128,9 +157,9 @@ int main(void)
             break;
 
         case 2:
-            acceleration_floats.x = (float)mean_acc.x / MPS_CONV;
-            acceleration_floats.y = (float)mean_acc.y / MPS_CONV;
-            acceleration_floats.z = (float)mean_acc.z / MPS_CONV;
+            acceleration_floats.x = (float)offset_mean.x / MPS_CONV;
+            acceleration_floats.y = (float)offset_mean.y / MPS_CONV;
+            acceleration_floats.z = (float)offset_mean.z / MPS_CONV;
             ftos(acceleration_floats.x, acc_float_x, 2);
             ftos(acceleration_floats.y, acc_float_y, 2);
             ftos(acceleration_floats.z, acc_float_z, 2);

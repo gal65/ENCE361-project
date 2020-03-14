@@ -59,6 +59,12 @@ enum dispModes {RAW = 0, GRAV, MPS};
 // read the pin in the opposite condition, before the state changes and
 // a flag is set.  Set NUM_BUT_POLLS according to the polling rate.
 
+// Structure definition for poll buttons
+typedef struct{
+    uint8_t dispMode;
+    int flag;
+} vector_poll;
+
 // *******************************************************
 // initButtons: Initialise the variables associated with the set of buttons
 // defined by the constants above.
@@ -80,6 +86,7 @@ uint8_t checkButton (uint8_t butName);
 
 // Function to poll buttons and if pushed, increment the mode cycler
 // Returns the new mode
-uint8_t pollButtons(uint8_t dispMode);
+
+vector_poll pollButtons(uint8_t dispMode);
 
 #endif /*BUTTONS_H_*/
