@@ -1,8 +1,9 @@
 /* Module converts floats to strings for display on OLED with driver lacking support for printing floats;
+ *
  * Mon 11 Group 20
  * S. Allen, J. Zhu, G. Lay
  *
- * Adapted from "C program for implementation of ftoa()"
+ * Heavily adapted from "C program for implementation of ftoa()"
  * Author; Shubham Singh. Retrieved 14/03/2020 from https://www.geeksforgeeks.org/convert-floating-point-number-string/
  */
 
@@ -23,8 +24,7 @@ void reverse(char* str, int len)
 
 // Converts a given integer x to string str[].
 // d is the number of digits required in the output.
-// If d is more than the number of digits in x,
-// then 0s are added at the beginning.
+// If d is more than the number of digits in x, then zeros are added at the beginning.
 int ipartToStr(int x, char str[], int places, uint8_t neg_flag)
 {
     int i = 0;
@@ -51,23 +51,23 @@ int ipartToStr(int x, char str[], int places, uint8_t neg_flag)
     return i;
 }
 
-// Converts a given integer x to string str[].
-// d is the number of digits required in the output.
-// If d is more than the number of digits in x,
-// then 0s are added at the beginning.
+// Converts a given fraction part (in fixed point) x to string str[].
+// Version for fraction part.
 int fpartToStr(int x, char str[], int places)
 {
     int i = 0;
 
-    while (x) {
+    while (x)
+    {
         str[i++] = (x % 10) + '0';
         x = x / 10;
     }
 
-    // If number of digits required is more, then
-    // add 0s at the beginning
+    // If number of digits required is more, then add 0s at the beginning
     while (i < places)
+    {
         str[i++] = '0';
+    }
 
     reverse(str, i);
     str[i] = '\0';
@@ -82,11 +82,12 @@ void ftos(float n, char* res, int decimal_places)
     // Extract integer part
     int ipart = (int)n;
 
-    // Extract floating part
+    // Extract floating part and convert to fixed point
     float fpart = n - (float)ipart;
     fpart = fpart * pow(10, decimal_places);
 
-    // If negative, set neg flag high and take absolute
+    // If negative, set neg flag high and take absolute values for both parts
+    // Note; abs() does not support floats; an integer is returned.
     if (n < 0)
     {
         neg_flag = 1;
@@ -106,7 +107,6 @@ void ftos(float n, char* res, int decimal_places)
         // of points after dot. The third parameter
         // is needed to handle cases like 233.007
 
-
-        fpartToStr((int)fpart, res + i + 1, decimal_places);
+        fpartToStr((int) fpart, res + i + 1, decimal_places);
     }
 }
