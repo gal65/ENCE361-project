@@ -113,7 +113,7 @@ int main(void)
     // Acceleration code (ripped from readAcc main function)
     vector3_t acceleration;
     vector3_float acceleration_floats;
-    vector3_t mean;
+    vector3_t mean_acc;
 
     // TODO; enable changing the displayed units
     uint8_t unitMode = UNITS_RAW;
@@ -131,15 +131,15 @@ int main(void)
         acceleration = getAcclData();
         acceleration = getAcclData(unitMode);
         store_accl(acceleration, &inBuffer_x, &inBuffer_y, &inBuffer_z);
-        mean = calculate_mean(&inBuffer_x, &inBuffer_y, &inBuffer_z);
+        mean_acc = calculate_mean(&inBuffer_x, &inBuffer_y, &inBuffer_z);
         // TEST MEAN
 
         switch (unitMode)
         {
         case 0:
-            displayUpdate("Accl", "X", acceleration.x, "raw", 1);
-            displayUpdate("Accl", "Y", mean.y, "raw", 2);
-            displayUpdate("Accl", "Z", acceleration.z, "raw", 3);
+            displayUpdate("Accl", "X", mean_acc.x, "raw", 1);
+            displayUpdate("Accl", "Y", mean_acc.y, "raw", 2);
+            displayUpdate("Accl", "Z", mean_acc.z, "raw", 3);
             break;
 
         case 1:
