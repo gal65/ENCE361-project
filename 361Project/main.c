@@ -61,7 +61,6 @@ int main(void)
 
     static uint32_t ulSampCnt;    // Counter for the interrupts
 
-
     // Initialise components
     initClockADC (ulSampCnt, SAMPLE_RATE_HZ);
     initADC (&inBuffer);
@@ -77,7 +76,7 @@ int main(void)
 
     IntMasterEnable(); // Enable interrupts to the processor.
 
-    // Acceleration code (ripped from readAcc main function)
+    // Declaring vector struct variables
     vector3_t acceleration;
     vector3_float acceleration_floats;
     vector3_t mean_acc;
@@ -89,21 +88,22 @@ int main(void)
        offset.y = 0;
        offset.z = 0;
 
-    // TODO; enable changing the displayed units
+    // Enable changing the displayed units
        uint8_t unitMode = UNITS_RAW;
        vector_poll pollData;
 
     OLEDStringDraw ("Accelerometer", 0, 0);
 
+    // Variables used upon startup for the initialisation calibration
     int init_cycles = 0;
     int initialised = 0;
 
     while (1)
     {
+        // Declare strings for float-to-string conversion
         char acc_float_x[5];
         char acc_float_y[5];
         char acc_float_z[5];
-
 
         // Check buttons and update mode if required
         pollData = pollButtons(unitMode);
@@ -114,12 +114,14 @@ int main(void)
         // need to use interrupts properly
         SysCtlDelay(SysCtlClockGet() / 64);    // not Approx 2 Hz
 
+        // Pulls the data from the accelerometer and then collects it in a circular buffer
+        // The mean is then calculated and stored in a seperate variable
         acceleration = getAcclData();
         acceleration = getAcclData(unitMode);
         store_accl(acceleration, &inBuffer_x, &inBuffer_y, &inBuffer_z);
         mean_acc = calculate_mean(&inBuffer_x, &inBuffer_y, &inBuffer_z, BUF_SIZE);
 
-
+        // Upon initialization, the device waits until the buffers have been filled and then uses the mean to set the first offset
         if (initialised == 0) {
             init_cycles++;
             if (init_cycles > BUF_SIZE) {
@@ -128,6 +130,7 @@ int main(void)
             }
         }
 
+        // Calculates the offset by subtracting the current mean acceleration with the set offset
         offset_mean.x = mean_acc.x - offset.x;
         offset_mean.y = mean_acc.y - offset.y;
         offset_mean.z = mean_acc.z - offset.z;
@@ -138,54 +141,42 @@ int main(void)
 
         switch (unitMode)
         {
-        case 0:
+        case 0: // Raw mode - MAGIC NUMBER - Why does switch not like using enumerated or declared constants?
             displayUpdate("Accl", "X", offset_mean.x, "raw", 1);
             displayUpdate("Accl", "Y", offset_mean.y, "raw", 2);
             displayUpdate("Accl", "Z", offset_mean.z, "raw", 3);
             break;
 
-        case 1:
+        case 1: // Gravities mode
+            // Convert raw values to units of gravity, as floats
             acceleration_floats.x = (float)offset_mean.x / GRAV_CONV;
             acceleration_floats.y = (float)offset_mean.y / GRAV_CONV;
             acceleration_floats.z = (float)offset_mean.z / GRAV_CONV;
+            // Convert float values to strings printable by usnprintf()
             ftos(acceleration_floats.x, acc_float_x, 2);
             ftos(acceleration_floats.y, acc_float_y, 2);
             ftos(acceleration_floats.z, acc_float_z, 2);
+            // Update the display
             displayUpdateFloatStr("", "X", acc_float_x, "G", 1);
             displayUpdateFloatStr("", "Y", acc_float_y, "G", 2);
             displayUpdateFloatStr("", "Z", acc_float_z, "G", 3);
             break;
 
-        case 2:
+        case 2: // MPS mode
+            // Convert raw values to units of meters per second, as floats
             acceleration_floats.x = (float)offset_mean.x / MPS_CONV;
             acceleration_floats.y = (float)offset_mean.y / MPS_CONV;
             acceleration_floats.z = (float)offset_mean.z / MPS_CONV;
+            // Convert float values to strings printable by usnprintf()
             ftos(acceleration_floats.x, acc_float_x, 2);
             ftos(acceleration_floats.y, acc_float_y, 2);
             ftos(acceleration_floats.z, acc_float_z, 2);
+            // Update the display
             displayUpdateFloatStr("", "X", acc_float_x, "m/s/s", 1);
             displayUpdateFloatStr("", "Y", acc_float_y, "m/s/s", 2);
             displayUpdateFloatStr("", "Z", acc_float_z, "m/s/s", 3);
             break;
         }
     }
-
-/*
-    // Loop for display (TODO; turn into task)
-    while (1)
-    {
-        //
-        // Background task: calculate the (approximate) mean of the values in the
-        // circular buffer and display it, together with the sample number.
-        sum = 0;
-        for (i = 0; i < BUF_SIZE; i++)
-            sum = sum + readCircBuf (&inBuffer);
-
-        // Calculate and display the rounded mean of the buffer contents
-        displayMeanVal ((2 * sum + BUF_SIZE) / 2 / BUF_SIZE, ulSampCnt);
-
-        SysCtlDelay (SysCtlClockGet() / 6);  // Update display at ~ 2 Hz
-    }
-*/
 
 }
