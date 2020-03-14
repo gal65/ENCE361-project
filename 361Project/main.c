@@ -1,126 +1,182 @@
-#ifndef READACC_H_
-#define READACC_H_
-
-/*******************************************************
- *
- * acc.h
- *
- * Support for interfacing with the ADXL345 accelerometer
- * on the Orbit BoosterPack.
+/**
+ * main.c
+ * Main source file for ENCE361 Project 1, Milestone 1
  *
  * Mon 11 Group 20
  *
- * C.P. Moore
- * Last modified:  24/02/2020
- *
-*******************************************************/
+ * Authors; S. Allen, J. Zhu, G. Lay
+ * using material from P. Bones and C. Moore
+ * Created; 10/03/2020
+ */
 
+// TODO; implement circular buffers and averaging
+// tidy everything up
+// confirm modularity
+
+#include <readAcc.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include <stdlib.h>
+#include <math.h>
 #include "inc/hw_memmap.h"
 #include "inc/hw_types.h"
-#include "inc/hw_i2c.h"
-#include "driverlib/pin_map.h" //Needed for pin configure
-#include "driverlib/systick.h"
-#include "driverlib/sysctl.h"
+//#include "inc/hw_ints.h"
 #include "driverlib/gpio.h"
-#include "driverlib/i2c.h"
-#include "OrbitOLED/OrbitOLEDInterface.h"
+#include "driverlib/uart.h"
+#include "driverlib/sysctl.h"
+#include "driverlib/systick.h"
+#include "driverlib/debug.h"
+#include "driverlib/pin_map.h"
+#include "driverlib/fpu.h"
 #include "utils/ustdlib.h"
-#include "i2c_driver.h"
-
-// Structure definition for 3D vectors
-typedef struct{
-    int16_t x;
-    int16_t y;
-    int16_t z;
-} vector3_t;
-
-typedef struct{
-    float x;
-    float y;
-    float z;
-} vector3_float;
-
-// Definition of unit modes
-#define UNITS_RAW 0;
-#define UNITS_GRAV 1;
-#define UNITS_MPS 2;
-
-/*
- * Accl Interrupt Pins
- */
-#define ACCL_INT1Port       GPIO_PORTB_BASE
-#define ACCL_INT2Port       GPIO_PORTE_BASE
-#define ACCL_INT1           GPIO_PIN_4
-#define ACCL_INT2           GPIO_PIN_4
-
-#define ACCL                2
-#define ACCL_ADDR           0x1D
-
-#define ACCL_INT            0x2E
-#define ACCL_OFFSET_X       0x1E
-#define ACCL_OFFSET_Y       0x1F
-#define ACCL_OFFSET_Z       0x20
-#define ACCL_DATA_X0        0x32
-#define ACCL_DATA_X1        0x33
-
-#define ACCL_PWR_CTL        0x2D
-// Parameters for ACCL_PWR_CTL:
-#define ACCL_MEASURE        0x08
-
-#define ACCL_DATA_FORMAT    0x31
-// Parameters for ACCL_DATA_FORMAT:
-#define ACCL_RANGE_2G       0x00
-#define ACCL_RANGE_4G       0x01
-#define ACCL_RANGE_8G       0x02
-#define ACCL_RANGE_16G      0x03
-#define ACCL_FULL_RES       0x08
-#define ACCL_JUSTIFY        0x04
-
-#define ACCL_BW_RATE        0x2C
-// Parameters for ACCL_BW_RATE:
-#define ACCL_RATE_3200HZ    0x0F
-#define ACCL_RATE_1600HZ    0x0E
-#define ACCL_RATE_800HZ     0x0D
-#define ACCL_RATE_400HZ     0x0C
-#define ACCL_RATE_200HZ     0x0B
-#define ACCL_RATE_100HZ     0x0A
-#define ACCL_RATE_50HZ      0x09
-#define ACCL_RATE_25HZ      0x08
-#define ACCL_RATE_12_5HZ    0x07
-#define ACCL_RATE_6_25HZ    0x06
-#define ACCL_RATE_3_13HZ    0x05
-#define ACCL_RATE_1_56HZ    0x04
-#define ACCL_RATE_0_78HZ    0x03
-#define ACCL_RATE_0_39HZ    0x02
-#define ACCL_RATE_0_20HZ    0x01
-#define ACCL_RATE_0_10HZ    0x00
+#include <stdio.h>
+#include <stdlib.h>
+#include "OrbitOLED/OrbitOLEDInterface.h"
+#include "ADC.h"
+#include "readAcc.h"
+#include "buttons4.h"
 
 //*****************************************************************************
-// Void function to display a changing message on the display.
-// The display has 4 rows of 16 characters, with 0, 0 at top left.
+// Variables
 //*****************************************************************************
-void displayUpdate (char *str1, char *str2, int16_t num, char *str3, uint8_t charLine);
+#define BUF_SIZE 10
+#define SAMPLE_RATE_HZ 100
+#define GRAV_CONV 128
+#define MPS_CONV 26
 
 //*****************************************************************************
-// Display function, version for displaying floats
-// The display has 4 rows of 16 characters, with 0, 0 at top left.
+// Stores the values obtained by the accelerometer into the circular buffer
 //*****************************************************************************
-void displayUpdateFloat (char *str1, char *str2, float num, char *str3, uint8_t charLine);
+void store_accl(vector3_t acceleration, circBuf_t *buffer_x, circBuf_t *buffer_y, circBuf_t *buffer_z)
+{
+    writeCircBuf(buffer_x, acceleration.x);
+    writeCircBuf(buffer_y, acceleration.y);
+    writeCircBuf(buffer_z, acceleration.z);
+}
 
-/*********************************************************
- * Void function to initialise accelerometer functions.
- *********************************************************/
-void initAccl (void);
+//*****************************************************************************
+// Calculates the mean of the circular buffer and returns a 3 vector of x, y and z
+//*****************************************************************************
+vector3_t calculate_mean(circBuf_t *buffer_x, circBuf_t *buffer_y, circBuf_t *buffer_z)
+{
+    vector3_t sum;
+    vector3_t average;
+    int i;
+    sum.x = 0;
+    sum.y = 0;
+    sum.z = 0;
+
+    // Sum all values in the circular buffer
+    for (i = 0; i < BUF_SIZE; i++) {
+        sum.x = sum.x + readCircBuf (buffer_x);
+        sum.y = sum.y + readCircBuf (buffer_y);
+        sum.z = sum.z + readCircBuf (buffer_z);
+    }
+    // Divide all values in the circular buffer to get mean
+    average.x = sum.x / BUF_SIZE;
+    average.y = sum.y / BUF_SIZE;
+    average.z = sum.z / BUF_SIZE;
+
+    return average;
+}
 
 /********************************************************
- * Void function to read accelerometer. Returns a vector3_t struct.
+ * main
  ********************************************************/
-vector3_t getAcclData ();
+int main(void)
+{
+    // Buffer of size BUF_SIZE integers (sample values) for each axis x, y and z
+    static circBuf_t inBuffer_x;
+    static circBuf_t inBuffer_y;
+    static circBuf_t inBuffer_z;
 
-// void function to reset the calibration of the accelerometer as displayed
-void accCalibrate (void);
+    // Buffer of size BUF_SIZE integers (sample values) for the ADC (CURRENTLY NOT IN USE)
+    static circBuf_t inBuffer;
 
-#endif /*READACC_H_*/
+    static uint32_t ulSampCnt;    // Counter for the interrupts
+
+
+    // Initialise components
+    initClockADC (ulSampCnt, SAMPLE_RATE_HZ);
+    initADC (&inBuffer);
+    OLEDInitialise ();
+    initCircBuf (&inBuffer, BUF_SIZE);
+    initCircBuf (&inBuffer_x, BUF_SIZE);
+    initCircBuf (&inBuffer_y, BUF_SIZE);
+    initCircBuf (&inBuffer_z, BUF_SIZE);
+    initButtons();
+    initAccl();
+
+    FPUEnable(); // enable FPU co-processor
+
+    IntMasterEnable(); // Enable interrupts to the processor.
+
+    // Acceleration code (ripped from readAcc main function)
+    vector3_t acceleration;
+    vector3_float acceleration_floats;
+    vector3_t mean;
+
+    // TODO; enable changing the displayed units
+    uint8_t unitMode = UNITS_RAW;
+
+    OLEDStringDraw ("Accelerometer", 0, 0);
+
+    while (1)
+    {
+        // Check buttons and update mode if required
+        unitMode = pollButtons(unitMode);
+
+        // Loop for accelerometer (TODO; turn into task) // THIS IS CAUSING THE LONG PRESS BUG, when combined with SysCtlDelay elsewhere (ie in buttons4.c)
+        SysCtlDelay(SysCtlClockGet() / 48);    // not Approx 2 Hz
+
+        acceleration = getAcclData();
+        acceleration = getAcclData(unitMode);
+        store_accl(acceleration, &inBuffer_x, &inBuffer_y, &inBuffer_z);
+        mean = calculate_mean(&inBuffer_x, &inBuffer_y, &inBuffer_z);
+        // TEST MEAN
+
+        switch (unitMode)
+        {
+        case 0:
+            displayUpdate("Accl", "X", acceleration.x, "raw", 1);
+            displayUpdate("Accl", "Y", mean.y, "raw", 2);
+            displayUpdate("Accl", "Z", acceleration.z, "raw", 3);
+            break;
+
+        case 1:
+            acceleration_floats.x = acceleration.x / GRAV_CONV;
+            acceleration_floats.y = acceleration.y / GRAV_CONV;
+            acceleration_floats.z = acceleration.z / GRAV_CONV;
+            displayUpdateFloat("Accl", "X", acceleration_floats.x, "G", 1);
+            displayUpdateFloat("Accl", "Y", acceleration_floats.y, "G", 2);
+            displayUpdateFloat("Accl", "Z", acceleration_floats.z, "G", 3);
+            break;
+
+        case 2:
+            acceleration_floats.x = acceleration_floats.x / MPS_CONV;
+            acceleration_floats.y = acceleration_floats.y / MPS_CONV;
+            acceleration_floats.z = acceleration_floats.z / MPS_CONV;
+            //displayUpdateFloat("Accl", "X", acceleration_floats.x, "m/s/s", 1);
+            displayUpdateFloat("Accl", "X", acceleration_floats.x, "m/s/s", 1);
+            displayUpdateFloat("Accl", "Y", acceleration_floats.y, "m/s/s", 2);
+            displayUpdateFloat("Accl", "Z", acceleration_floats.z, "m/s/s", 3);
+            break;
+        }
+    }
+/*
+    // Loop for display (TODO; turn into task)
+    while (1)
+    {
+        //
+        // Background task: calculate the (approximate) mean of the values in the
+        // circular buffer and display it, together with the sample number.
+        sum = 0;
+        for (i = 0; i < BUF_SIZE; i++)
+            sum = sum + readCircBuf (&inBuffer);
+
+        // Calculate and display the rounded mean of the buffer contents
+        displayMeanVal ((2 * sum + BUF_SIZE) / 2 / BUF_SIZE, ulSampCnt);
+
+        SysCtlDelay (SysCtlClockGet() / 6);  // Update display at ~ 2 Hz
+    }
+*/
+}
