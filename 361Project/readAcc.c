@@ -82,16 +82,14 @@ void displayUpdateFloat (char *str1, char *str2, float num, char *str3, uint8_t 
 // Display function, version for displaying floats
 // The display has 4 rows of 16 characters, with 0, 0 at top left.
 //*****************************************************************************
-void displayUpdateFloat (char *str1, char *str2, float num, char *str3, uint8_t charLine)
+void displayUpdateFloatStr (char *str1, char *str2, char *float_string, char *str3, uint8_t charLine)
 {
     char text_buffer[17];           //Display fits 16 characters wide.
-    char float_string[5];
 
     // "Undraw" the previous contents of the line to be updated.
     OLEDStringDraw ("                ", 0, charLine);
     // Form a new string for the line.  The maximum width specified for the
     //  number field ensures it is displayed right justified.
-    sprintf(float_string, "%3.2f\n", num);
     usnprintf(text_buffer, sizeof(text_buffer), "%s", float_string);
     // Update line on display.
     OLEDStringDraw (text_buffer, 0, charLine);
@@ -188,7 +186,44 @@ vector3_t getAcclData (void)
         acceleration.z = acceleration.z / 26;
     }*/
 
+
     return acceleration;
+}
+
+//*****************************************************************************
+// Stores the values obtained by the accelerometer into the circular buffer
+//*****************************************************************************
+void store_accl(vector3_t acceleration, circBuf_t *buffer_x, circBuf_t *buffer_y, circBuf_t *buffer_z)
+{
+    writeCircBuf(buffer_x, acceleration.x);
+    writeCircBuf(buffer_y, acceleration.y);
+    writeCircBuf(buffer_z, acceleration.z);
+}
+
+//*****************************************************************************
+// Calculates the mean of the circular buffer and returns a 3 vector of x, y and z
+//*****************************************************************************
+vector3_t calculate_mean(circBuf_t *buffer_x, circBuf_t *buffer_y, circBuf_t *buffer_z, uint8_t buf_size)
+{
+    vector3_t sum;
+    vector3_t average;
+    int i;
+    sum.x = 0;
+    sum.y = 0;
+    sum.z = 0;
+
+    // Sum all values in the circular buffer
+    for (i = 0; i < buf_size; i++) {
+        sum.x = sum.x + readCircBuf (buffer_x);
+        sum.y = sum.y + readCircBuf (buffer_y);
+        sum.z = sum.z + readCircBuf (buffer_z);
+    }
+    // Divide all values in the circular buffer to get mean
+    average.x = sum.x / buf_size;
+    average.y = sum.y / buf_size;
+    average.z = sum.z / buf_size;
+
+    return average;
 }
 
 // void function to reset the calibration of the accelerometer as displayed
@@ -196,3 +231,5 @@ void accCalibrate (void)
 {
      //  blank for now TODO; this is where we reset the accelerometers to zero
 }
+
+

@@ -29,6 +29,7 @@
 #include "OrbitOLED/OrbitOLEDInterface.h"
 #include "utils/ustdlib.h"
 #include "i2c_driver.h"
+#include <circBufT.h>
 
 // Structure definition for 3D vectors
 typedef struct{
@@ -108,7 +109,7 @@ void displayUpdate (char *str1, char *str2, int16_t num, char *str3, uint8_t cha
 // Display function, version for displaying floats
 // The display has 4 rows of 16 characters, with 0, 0 at top left.
 //*****************************************************************************
-void displayUpdateFloat (char *str1, char *str2, float num, char *str3, uint8_t charLine);
+void displayUpdateFloatStr (char *str1, char *str2, char *float_string, char *str3, uint8_t charLine);
 
 /*********************************************************
  * Void function to initialise accelerometer functions.
@@ -119,6 +120,16 @@ void initAccl (void);
  * Void function to read accelerometer. Returns a vector3_t struct.
  ********************************************************/
 vector3_t getAcclData ();
+
+//*****************************************************************************
+// Stores the values obtained by the accelerometer into the circular buffer
+//*****************************************************************************
+void store_accl(vector3_t acceleration, circBuf_t *buffer_x, circBuf_t *buffer_y, circBuf_t *buffer_z);
+
+//*****************************************************************************
+// Calculates the mean of the circular buffer and returns a 3 vector of x, y and z
+//*****************************************************************************
+vector3_t calculate_mean(circBuf_t *buffer_x, circBuf_t *buffer_y, circBuf_t *buffer_z, uint8_t buf_size);
 
 // void function to reset the calibration of the accelerometer as displayed
 void accCalibrate (void);

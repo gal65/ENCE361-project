@@ -3,6 +3,7 @@
  * Main source file for ENCE361 Project 1, Milestone 1
  *
  * Mon 11 Group 20
+ * S. Allen, J. Zhu, G. Lay
  *
  * Authors; S. Allen, J. Zhu, G. Lay
  * using material from P. Bones and C. Moore
@@ -34,6 +35,7 @@
 #include "ADC.h"
 #include "readAcc.h"
 #include "buttons4.h"
+#include "floatToString.h"
 
 //*****************************************************************************
 // Variables
@@ -43,41 +45,6 @@
 #define GRAV_CONV 128
 #define MPS_CONV 26
 
-//*****************************************************************************
-// Stores the values obtained by the accelerometer into the circular buffer
-//*****************************************************************************
-void store_accl(vector3_t acceleration, circBuf_t *buffer_x, circBuf_t *buffer_y, circBuf_t *buffer_z)
-{
-    writeCircBuf(buffer_x, acceleration.x);
-    writeCircBuf(buffer_y, acceleration.y);
-    writeCircBuf(buffer_z, acceleration.z);
-}
-
-//*****************************************************************************
-// Calculates the mean of the circular buffer and returns a 3 vector of x, y and z
-//*****************************************************************************
-vector3_t calculate_mean(circBuf_t *buffer_x, circBuf_t *buffer_y, circBuf_t *buffer_z)
-{
-    vector3_t sum;
-    vector3_t average;
-    int i;
-    sum.x = 0;
-    sum.y = 0;
-    sum.z = 0;
-
-    // Sum all values in the circular buffer
-    for (i = 0; i < BUF_SIZE; i++) {
-        sum.x = sum.x + readCircBuf (buffer_x);
-        sum.y = sum.y + readCircBuf (buffer_y);
-        sum.z = sum.z + readCircBuf (buffer_z);
-    }
-    // Divide all values in the circular buffer to get mean
-    average.x = sum.x / BUF_SIZE;
-    average.y = sum.y / BUF_SIZE;
-    average.z = sum.z / BUF_SIZE;
-
-    return average;
-}
 
 /********************************************************
  * main
@@ -122,17 +89,23 @@ int main(void)
 
     while (1)
     {
+        char acc_float_x[5];
+        char acc_float_y[5];
+        char acc_float_z[5];
+
+
         // Check buttons and update mode if required
         unitMode = pollButtons(unitMode);
 
-        // Loop for accelerometer (TODO; turn into task) // THIS IS CAUSING THE LONG PRESS BUG, when combined with SysCtlDelay elsewhere (ie in buttons4.c)
+        // Loop for accelerometer (TODO; turn into task)
+        // THIS IS CAUSING THE LONG PRESS BUG, when combined with SysCtlDelay elsewhere (ie in buttons4.c)
+        // need to use interrupts properly
         SysCtlDelay(SysCtlClockGet() / 48);    // not Approx 2 Hz
 
         acceleration = getAcclData();
         acceleration = getAcclData(unitMode);
         store_accl(acceleration, &inBuffer_x, &inBuffer_y, &inBuffer_z);
-        mean_acc = calculate_mean(&inBuffer_x, &inBuffer_y, &inBuffer_z);
-        // TEST MEAN
+        mean_acc = calculate_mean(&inBuffer_x, &inBuffer_y, &inBuffer_z, BUF_SIZE);
 
         switch (unitMode)
         {
@@ -143,25 +116,32 @@ int main(void)
             break;
 
         case 1:
-            acceleration_floats.x = acceleration.x / GRAV_CONV;
-            acceleration_floats.y = acceleration.y / GRAV_CONV;
-            acceleration_floats.z = acceleration.z / GRAV_CONV;
-            displayUpdateFloat("Accl", "X", acceleration_floats.x, "G", 1);
-            displayUpdateFloat("Accl", "Y", acceleration_floats.y, "G", 2);
-            displayUpdateFloat("Accl", "Z", acceleration_floats.z, "G", 3);
+            acceleration_floats.x = (float)mean_acc.x / GRAV_CONV;
+            acceleration_floats.y = (float)mean_acc.y / GRAV_CONV;
+            acceleration_floats.z = (float)mean_acc.z / GRAV_CONV;
+/*            acceleration_floats.x = 1.11;
+            acceleration_floats.y = 2.22;
+            acceleration_floats.z = 3.33;*/
+            ftoa(acceleration_floats.x, acc_float_x, 2);
+            ftoa(acceleration_floats.y, acc_float_y, 2);
+            ftoa(acceleration_floats.z, acc_float_z, 2);
+            displayUpdateFloatStr("Accl", "X", acc_float_x, "G", 1);
+            displayUpdateFloatStr("Accl", "Y", acc_float_y, "G", 2);
+            displayUpdateFloatStr("Accl", "Z", acc_float_z, "G", 3);
             break;
 
         case 2:
-            acceleration_floats.x = acceleration_floats.x / MPS_CONV;
+            /*acceleration_floats.x = acceleration_floats.x / MPS_CONV;
             acceleration_floats.y = acceleration_floats.y / MPS_CONV;
             acceleration_floats.z = acceleration_floats.z / MPS_CONV;
             //displayUpdateFloat("Accl", "X", acceleration_floats.x, "m/s/s", 1);
-            displayUpdateFloat("Accl", "X", acceleration_floats.x, "m/s/s", 1);
-            displayUpdateFloat("Accl", "Y", acceleration_floats.y, "m/s/s", 2);
-            displayUpdateFloat("Accl", "Z", acceleration_floats.z, "m/s/s", 3);
+            displayUpdateFloatStr("Accl", "X", acceleration_floats.x, "m/s/s", 1);
+            displayUpdateFloatStr("Accl", "Y", acceleration_floats.y, "m/s/s", 2);
+            displayUpdateFloatStr("Accl", "Z", acceleration_floats.z, "m/s/s", 3);*/
             break;
         }
     }
+
 /*
     // Loop for display (TODO; turn into task)
     while (1)
@@ -179,4 +159,5 @@ int main(void)
         SysCtlDelay (SysCtlClockGet() / 6);  // Update display at ~ 2 Hz
     }
 */
+
 }
