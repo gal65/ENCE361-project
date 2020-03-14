@@ -37,6 +37,12 @@ typedef struct{
     int16_t z;
 } vector3_t;
 
+typedef struct{
+    float x;
+    float y;
+    float z;
+} vector3_float;
+
 // Definition of unit modes
 #define UNITS_RAW 0;
 #define UNITS_GRAV 1;
@@ -98,6 +104,12 @@ typedef struct{
 //*****************************************************************************
 void displayUpdate (char *str1, char *str2, int16_t num, char *str3, uint8_t charLine);
 
+//*****************************************************************************
+// Display function, version for displaying floats
+// The display has 4 rows of 16 characters, with 0, 0 at top left.
+//*****************************************************************************
+void displayUpdateFloat (char *str1, char *str2, float num, char *str3, uint8_t charLine);
+
 /*********************************************************
  * Void function to initialise accelerometer functions.
  *********************************************************/
@@ -106,7 +118,7 @@ void initAccl (void);
 /********************************************************
  * Void function to read accelerometer. Returns a vector3_t struct.
  ********************************************************/
-vector3_t getAcclData (uint8_t unitMode);
+vector3_t getAcclData ();
 
 // void function to reset the calibration of the accelerometer as displayed
 void accCalibrate (void);
