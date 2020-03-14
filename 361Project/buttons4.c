@@ -131,7 +131,7 @@ uint8_t checkButton (uint8_t butName)
     return NO_CHANGE;
 }
 
-// Function to poll buttons and if pushed, increment the mode cycle
+// Function to poll buttons; pushing UP will increment the mode cycle, pushing DOWN will set a flag to logic high
 vector_poll pollButtons(uint8_t dispMode)
 {
     vector_poll pollState;
@@ -157,7 +157,7 @@ vector_poll pollButtons(uint8_t dispMode)
     butState = checkButton(DOWN);
     switch (butState)
     {
-    case PUSHED:
+    case PUSHED: // set flag to logic high if a change is detected on DOWN button
         flag = 1;
         break;
         // Do nothing if state is NO_CHANGE or RELEASED
@@ -186,6 +186,8 @@ vector_poll pollButtons(uint8_t dispMode)
      // Do nothing if state is NO_CHANGE
      }
      */
+
+    // set each field of the vector_poll
     pollState.dispMode = dispMode;
     pollState.flag = flag;
 
