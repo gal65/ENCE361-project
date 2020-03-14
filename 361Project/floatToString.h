@@ -11,7 +11,27 @@
  */
 
 #include <math.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <math.h>
+#include "inc/hw_memmap.h"
+#include "inc/hw_types.h"
+//#include "inc/hw_ints.h"
+#include "driverlib/gpio.h"
+#include "driverlib/uart.h"
+#include "driverlib/sysctl.h"
+#include "driverlib/systick.h"
+#include "driverlib/debug.h"
+#include "driverlib/pin_map.h"
+#include "driverlib/fpu.h"
+#include "utils/ustdlib.h"
 #include <stdio.h>
+#include <stdlib.h>
+#include "OrbitOLED/OrbitOLEDInterface.h"
+#include "ADC.h"
+#include "readAcc.h"
+#include "buttons4.h"
+#include "floatToString.h"
 
 // Reverses a string 'str' of length 'len'
 void reverse(char* str, int len);
@@ -20,9 +40,12 @@ void reverse(char* str, int len);
 // d is the number of digits required in the output.
 // If d is more than the number of digits in x,
 // then 0s are added at the beginning.
-int intToStr(int x, char str[], int d);
+int ipartToStr(int x, char str[], int places, uint8_t neg_flag);
+
+// Similar ftos function for fraction part of a float
+int fpartToStr(int x, char str[], int places);
 
 // Converts a floating-point/double number to a string.
-void ftoa(float n, char* res, int afterpoint);
+void ftos(float n, char* res, int decimal_places);
 
 #endif /*READACC_H_*/

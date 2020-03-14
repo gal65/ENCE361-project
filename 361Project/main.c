@@ -42,7 +42,7 @@
 //*****************************************************************************
 #define BUF_SIZE 10
 #define SAMPLE_RATE_HZ 100
-#define GRAV_CONV 128
+#define GRAV_CONV 256
 #define MPS_CONV 26
 
 
@@ -100,7 +100,7 @@ int main(void)
         // Loop for accelerometer (TODO; turn into task)
         // THIS IS CAUSING THE LONG PRESS BUG, when combined with SysCtlDelay elsewhere (ie in buttons4.c)
         // need to use interrupts properly
-        SysCtlDelay(SysCtlClockGet() / 48);    // not Approx 2 Hz
+        SysCtlDelay(SysCtlClockGet() / 64);    // not Approx 2 Hz
 
         acceleration = getAcclData();
         acceleration = getAcclData(unitMode);
@@ -119,25 +119,24 @@ int main(void)
             acceleration_floats.x = (float)mean_acc.x / GRAV_CONV;
             acceleration_floats.y = (float)mean_acc.y / GRAV_CONV;
             acceleration_floats.z = (float)mean_acc.z / GRAV_CONV;
-/*            acceleration_floats.x = 1.11;
-            acceleration_floats.y = 2.22;
-            acceleration_floats.z = 3.33;*/
-            ftoa(acceleration_floats.x, acc_float_x, 2);
-            ftoa(acceleration_floats.y, acc_float_y, 2);
-            ftoa(acceleration_floats.z, acc_float_z, 2);
-            displayUpdateFloatStr("Accl", "X", acc_float_x, "G", 1);
-            displayUpdateFloatStr("Accl", "Y", acc_float_y, "G", 2);
-            displayUpdateFloatStr("Accl", "Z", acc_float_z, "G", 3);
+            ftos(acceleration_floats.x, acc_float_x, 2);
+            ftos(acceleration_floats.y, acc_float_y, 2);
+            ftos(acceleration_floats.z, acc_float_z, 2);
+            displayUpdateFloatStr("", "X", acc_float_x, "G", 1);
+            displayUpdateFloatStr("", "Y", acc_float_y, "G", 2);
+            displayUpdateFloatStr("", "Z", acc_float_z, "G", 3);
             break;
 
         case 2:
-            /*acceleration_floats.x = acceleration_floats.x / MPS_CONV;
-            acceleration_floats.y = acceleration_floats.y / MPS_CONV;
-            acceleration_floats.z = acceleration_floats.z / MPS_CONV;
-            //displayUpdateFloat("Accl", "X", acceleration_floats.x, "m/s/s", 1);
-            displayUpdateFloatStr("Accl", "X", acceleration_floats.x, "m/s/s", 1);
-            displayUpdateFloatStr("Accl", "Y", acceleration_floats.y, "m/s/s", 2);
-            displayUpdateFloatStr("Accl", "Z", acceleration_floats.z, "m/s/s", 3);*/
+            acceleration_floats.x = (float)mean_acc.x / MPS_CONV;
+            acceleration_floats.y = (float)mean_acc.y / MPS_CONV;
+            acceleration_floats.z = (float)mean_acc.z / MPS_CONV;
+            ftos(acceleration_floats.x, acc_float_x, 2);
+            ftos(acceleration_floats.y, acc_float_y, 2);
+            ftos(acceleration_floats.z, acc_float_z, 2);
+            displayUpdateFloatStr("", "X", acc_float_x, "m/s/s", 1);
+            displayUpdateFloatStr("", "Y", acc_float_y, "m/s/s", 2);
+            displayUpdateFloatStr("", "Z", acc_float_z, "m/s/s", 3);
             break;
         }
     }
