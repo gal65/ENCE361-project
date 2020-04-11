@@ -75,7 +75,7 @@ int fpartToStr(int x, char str[], int decimal_places)
 }
 
 // Converts a floating-point/double number to a string.
-void ftos(float n, char* res, int decimal_places, int integer_places)
+void ftos(float n, char* res, int integer_places, int decimal_places)
 {
     uint8_t neg_flag = 0;
 

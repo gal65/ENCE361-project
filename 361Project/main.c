@@ -45,7 +45,7 @@
 #define GRAV_CONV 256 // conversion factor for raw accelerometer data to gravities - change if changing accelerometer settings
 #define MPS_CONV 26 // conversion factor for raw accelerometer data to meters per second per second - change if changing accelerometer settings
 #define INT_PLACES 2 // number of integer places for float display
-#define DEC_PLACES 3 // number of decimal places for float display
+#define DEC_PLACES 2 // number of decimal places for float display
 
 
 /********************************************************
