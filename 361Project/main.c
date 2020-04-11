@@ -40,10 +40,12 @@
 //*****************************************************************************
 // Variables
 //*****************************************************************************
-#define BUF_SIZE 10
-#define SAMPLE_RATE_HZ 100
-#define GRAV_CONV 256
-#define MPS_CONV 26
+#define BUF_SIZE 10 // size of buffer for reading ADC
+#define SAMPLE_RATE_HZ 100 // rate for sampling accelerometers
+#define GRAV_CONV 256 // conversion factor for raw accelerometer data to gravities - change if changing accelerometer settings
+#define MPS_CONV 26 // conversion factor for raw accelerometer data to meters per second per second - change if changing accelerometer settings
+#define INT_PLACES 2 // number of integer places for float display
+#define DEC_PLACES 3 // number of decimal places for float display
 
 
 /********************************************************
@@ -112,7 +114,7 @@ int main(void)
         // Loop for accelerometer (TODO; turn into task)
         // THIS IS CAUSING THE LONG PRESS BUG, when combined with SysCtlDelay elsewhere (ie in buttons4.c)
         // need to use interrupts properly
-        SysCtlDelay(SysCtlClockGet() / 64);    // not Approx 2 Hz
+        SysCtlDelay(SysCtlClockGet() / 64);    // (not) approx 2 Hz
 
         // Pulls the data from the accelerometer and then collects it in a circular buffer
         // The mean is then calculated and stored in a seperate variable
@@ -153,9 +155,9 @@ int main(void)
             acceleration_floats.y = (float)offset_mean.y / GRAV_CONV;
             acceleration_floats.z = (float)offset_mean.z / GRAV_CONV;
             // Convert float values to strings printable by usnprintf()
-            ftos(acceleration_floats.x, acc_float_x, 2);
-            ftos(acceleration_floats.y, acc_float_y, 2);
-            ftos(acceleration_floats.z, acc_float_z, 2);
+            ftos(acceleration_floats.x, acc_float_x, INT_PLACES, DEC_PLACES);
+            ftos(acceleration_floats.y, acc_float_y, INT_PLACES, DEC_PLACES);
+            ftos(acceleration_floats.z, acc_float_z, INT_PLACES, DEC_PLACES);
             // Update the display
             displayUpdateFloatStr("", "X", acc_float_x, "G", 1);
             displayUpdateFloatStr("", "Y", acc_float_y, "G", 2);
@@ -168,9 +170,9 @@ int main(void)
             acceleration_floats.y = (float)offset_mean.y / MPS_CONV;
             acceleration_floats.z = (float)offset_mean.z / MPS_CONV;
             // Convert float values to strings printable by usnprintf()
-            ftos(acceleration_floats.x, acc_float_x, 2);
-            ftos(acceleration_floats.y, acc_float_y, 2);
-            ftos(acceleration_floats.z, acc_float_z, 2);
+            ftos(acceleration_floats.x, acc_float_x, INT_PLACES, DEC_PLACES);
+            ftos(acceleration_floats.y, acc_float_y, INT_PLACES, DEC_PLACES);
+            ftos(acceleration_floats.z, acc_float_z, INT_PLACES, DEC_PLACES);
             // Update the display
             displayUpdateFloatStr("", "X", acc_float_x, "m/s/s", 1);
             displayUpdateFloatStr("", "Y", acc_float_y, "m/s/s", 2);

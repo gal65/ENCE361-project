@@ -23,9 +23,9 @@ void reverse(char* str, int len)
 }
 
 // Converts a given integer x to string str[].
-// d is the number of digits required in the output.
+// d is the number of digits required in the output, NOT INCLUDING the negative sign.
 // If d is more than the number of digits in x, then zeros are added at the beginning.
-int ipartToStr(int x, char str[], int places, uint8_t neg_flag)
+int ipartToStr(int x, char str[], int integer_places, uint8_t neg_flag)
 {
     int i = 0;
 
@@ -36,7 +36,7 @@ int ipartToStr(int x, char str[], int places, uint8_t neg_flag)
 
     // If number of digits required is more, then
     // add 0s at the beginning
-    while (i < places) {
+    while (i < integer_places) {
         str[i++] = '0';
     }
 
@@ -53,7 +53,7 @@ int ipartToStr(int x, char str[], int places, uint8_t neg_flag)
 
 // Converts a given fraction part (in fixed point) x to string str[].
 // Version for fraction part.
-int fpartToStr(int x, char str[], int places)
+int fpartToStr(int x, char str[], int decimal_places)
 {
     int i = 0;
 
@@ -64,7 +64,7 @@ int fpartToStr(int x, char str[], int places)
     }
 
     // If number of digits required is more, then add 0s at the beginning
-    while (i < places)
+    while (i < decimal_places)
     {
         str[i++] = '0';
     }
@@ -75,7 +75,7 @@ int fpartToStr(int x, char str[], int places)
 }
 
 // Converts a floating-point/double number to a string.
-void ftos(float n, char* res, int decimal_places)
+void ftos(float n, char* res, int decimal_places, int integer_places)
 {
     uint8_t neg_flag = 0;
 
@@ -96,14 +96,14 @@ void ftos(float n, char* res, int decimal_places)
     }
 
     // convert integer part to string
-    int i = ipartToStr(ipart, res, 2, neg_flag);
+    int i = ipartToStr(ipart, res, integer_places, neg_flag);
     neg_flag = 0;
 
     // check for display option after point
     if (decimal_places != 0) {
         res[i] = '.'; // add dot
 
-        // Get the value of fraction part upto given no.
+        // Get the value of fraction part up to given no.
         // of points after dot. The third parameter
         // is needed to handle cases like 233.007
 

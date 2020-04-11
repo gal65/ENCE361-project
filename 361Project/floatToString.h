@@ -39,13 +39,13 @@ void reverse(char* str, int len);
 // Converts a given integer x to string str[].
 // d is the number of digits required in the output.
 // If d is more than the number of digits in x, then zeros are added at the beginning.
-int ipartToStr(int x, char str[], int places, uint8_t neg_flag);
+int ipartToStr(int x, char str[], int integer_places, uint8_t neg_flag);
 
 // Converts a given fraction part (in fixed point) x to string str[].
 // Version for fraction part.
-int fpartToStr(int x, char str[], int places);
+int fpartToStr(int x, char str[], int decimal_places);
 
 // Converts a floating-point/double number to a string.
-void ftos(float n, char* res, int decimal_places);
+void ftos(float n, char* res, int decimal_places, int integer_places);
 
 #endif /*READACC_H_*/
