@@ -58,7 +58,7 @@ int main(void)
     // Declaring vector struct variables
     vector3_t mean_acc;
     vector3_t offset;
-    vector3_t offset_mean;
+    vector3_t offset_mean_acc;
 
     // Initialising offsets to 0
     offset.x = 0;
@@ -75,20 +75,27 @@ int main(void)
 
     while (1) // TODO: On SYSCLK interrupt raising main_flag, run this while loop.
     {
-        // Check buttons and update mode if required
-        // TODO: interrupts for buttons
-        pollData = pollButtons(unitMode);
-        unitMode = pollData.dispMode;
-
         // Loop for accelerometer (TODO; turn this whole loop into a task triggered by an interrupt raising a flag)
         // THIS IS CAUSING THE LONG PRESS BUG, when combined with SysCtlDelay elsewhere (ie in buttons4.c)
         // THIS IS BAD METHOD - need to use interrupts properly.
         SysCtlDelay(SysCtlClockGet() / 64);    // (not) approx 2 Hz
 
+        // Check buttons and update mode if required
+        // TODO: interrupts for buttons
+        pollData = pollButtons(unitMode);
+        unitMode = pollData.dispMode;
+
+
+
+
         // Pulls the data from the accelerometer and then collects it in a circular buffer
         // The mean is then calculated and stored in a separate variable
         mean_acc = getAcclData();
 
+
+
+
+        // CALIBRATION OF ACCELEROMETERS
         // Upon initialization, the device waits until the buffers have been
         // filled and then uses the mean to set the first offset
         if (acc_buf_filled == 0)
@@ -101,30 +108,36 @@ int main(void)
             }
         }
 
-        // Calculates the offset by subtracting the current mean acceleration with the set offset
-        offset_mean.x = mean_acc.x - offset.x;
-        offset_mean.y = mean_acc.y - offset.y;
-        offset_mean.z = mean_acc.z - offset.z;
-
         // If recalibrate button pressed, set current mean as the new offset
         if (pollData.flag == 1)
         {
             offset = mean_acc;
         }
 
+        // Calculates the current value to display by subtracting the current
+        // mean acceleration by the last saved offset
+        offset_mean_acc.x = mean_acc.x - offset.x;
+        offset_mean_acc.y = mean_acc.y - offset.y;
+        offset_mean_acc.z = mean_acc.z - offset.z;
+
+
+
+
+
+
         // Select display logic based on mode
         switch (unitMode)
         {
         case 0: // Raw mode - MAGIC NUMBER? - Why does switch() not like using enumerated or declared constants?
-            displayRAW(offset_mean);
+            displayRAW(offset_mean_acc);
             break;
 
         case 1: // Gravities mode
-            displayGRAV(offset_mean);
+            displayGRAV(offset_mean_acc);
             break;
 
         case 2: // MPS mode
-            displayMSS(offset_mean);
+            displayMSS(offset_mean_acc);
             break;
         }
     }

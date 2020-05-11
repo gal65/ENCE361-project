@@ -41,7 +41,6 @@ typedef struct{
 circBuf_t inBuffer_x;
 circBuf_t inBuffer_y;
 circBuf_t inBuffer_z;
-
 // Buffer of size BUF_SIZE integers (sample values) for the ADC (CURRENTLY NOT IN USE)
 circBuf_t inBuffer;
 
