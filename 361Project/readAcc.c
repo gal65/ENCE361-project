@@ -89,31 +89,22 @@ void initAccl (void)
  ********************************************************/
 vector3_t getAcclData (void)
 {
-    char    fromAccl[] = {0, 0, 0, 0, 0, 0, 0}; // starting address, placeholders for data to be read.
     vector3_t acceleration;
+    vector3_t mean_acc;
+    char    fromAccl[] = {0, 0, 0, 0, 0, 0, 0}; // starting address, placeholders for data to be read.
     uint8_t bytesToRead = 6;
 
-    fromAccl[0] = ACCL_DATA_X0;
+    fromAccl[0] = ACCL_DATA_X0; // read all accel data
     I2CGenTransmit(fromAccl, bytesToRead, READ, ACCL_ADDR);
 
     acceleration.x = (fromAccl[2] << 8) | fromAccl[1]; // Return 16-bit acceleration readings.
-    acceleration.y = (fromAccl[4] << 8) | fromAccl[3];
+    acceleration.y = (fromAccl[4] << 8) | fromAccl[3]; // split into axes
     acceleration.z = (fromAccl[6] << 8) | fromAccl[5];
 
-/*    // Convert to desired units, if necessary.
-    if (unitMode == GRAV) {
-        acceleration.x = acceleration.x / 128; // TODO; enable floats and make this output to two decimal points.
-        acceleration.y = acceleration.y / 128;
-        acceleration.z = acceleration.z / 128;
-    }
-    if (unitMode == MPS) {
-        acceleration.x = acceleration.x / 26; // TODO; enable floats and output to one decimal point.
-        acceleration.y = acceleration.y / 26;
-        acceleration.z = acceleration.z / 26;
-    }*/
+    store_accl(acceleration, &inBuffer_x, &inBuffer_y, &inBuffer_z);
+    mean_acc = calculate_mean(&inBuffer_x, &inBuffer_y, &inBuffer_z,BUF_SIZE);
 
-
-    return acceleration;
+    return mean_acc;
 }
 
 //*****************************************************************************

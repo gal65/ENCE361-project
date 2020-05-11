@@ -36,6 +36,15 @@ typedef struct{
     int16_t z;
 } vector3_t;
 
+// Buffer of size BUF_SIZE integers (sample values) for each axis x, y and z
+//static circBuf_t* inBuffer; // Buffer of size BUF_SIZE integers (sample values)
+circBuf_t inBuffer_x;
+circBuf_t inBuffer_y;
+circBuf_t inBuffer_z;
+
+// Buffer of size BUF_SIZE integers (sample values) for the ADC (CURRENTLY NOT IN USE)
+circBuf_t inBuffer;
+
 // Definition of unit modes
 #define UNITS_RAW 0;
 #define UNITS_GRAV 1;
@@ -89,9 +98,11 @@ typedef struct{
 #define ACCL_RATE_0_20HZ    0x01
 #define ACCL_RATE_0_10HZ    0x00
 
+
 // Void function to display a changing message on the display.
 // The display has 4 rows of 16 characters, with 0, 0 at top left.
 void displayUpdate (char *str1, char *str2, int16_t num, char *str3, uint8_t charLine);
+
 
 // Display function, version for displaying floats
 // The display has 4 rows of 16 characters, with 0, 0 at top left.
@@ -101,16 +112,21 @@ void displayUpdateFloatStr (char *str1, char *str2, char *float_string, char *st
 // Void function to initialise accelerometer functions.
 void initAccl (void);
 
+
 // Void function to read accelerometer. Returns a vector3_t struct.
-vector3_t getAcclData ();
+vector3_t getAcclData (void);
+
 
 // Stores the values obtained by the accelerometer into the circular buffer
 void store_accl(vector3_t acceleration, circBuf_t *buffer_x, circBuf_t *buffer_y, circBuf_t *buffer_z);
 
+
 // Calculates the mean of the circular buffer and returns a 3 vector of x, y and z
 vector3_t calculate_mean(circBuf_t *buffer_x, circBuf_t *buffer_y, circBuf_t *buffer_z, uint8_t buf_size);
 
+
 // void function to reset the calibration of the accelerometer as displayed
 void accCalibrate (void);
+
 
 #endif /*READACC_H_*/

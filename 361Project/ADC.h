@@ -1,3 +1,6 @@
+#ifndef ADC_H_
+#define ADC_H_
+
 //*****************************************************************************
 //
 // ADCdemo1.h - Simple interrupt driven program which samples with AIN0
@@ -9,9 +12,6 @@
 //*****************************************************************************
 // Based on the 'convert' series from 2016
 //*****************************************************************************
-
-#ifndef ADC_H_
-#define ADC_H_
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -28,8 +28,6 @@
 #include "circBufT.h"
 #include "OrbitOLED/OrbitOLEDInterface.h"
 
-
-static circBuf_t* inBuffer;        // Buffer of size BUF_SIZE integers (sample values)
 
 //*****************************************************************************
 //
@@ -51,7 +49,7 @@ void ADCIntHandler(void);
 //*****************************************************************************
 void initClockADC (uint32_t ulSampCnt, uint32_t SAMPLE_RATE_HZ);
 
-void initADC (circBuf_t* inBufferPointer);
+void initADC(void); //(circBuf_t* inBufferPointer);
 
 void initDisplayADC (void);
 
@@ -60,6 +58,6 @@ void initDisplayADC (void);
 // Function to display the mean ADC value (10-bit value, note) and sample count.
 //
 //*****************************************************************************
-void displayMeanVal(uint16_t meanVal, uint32_t count);
+//void displayMeanVal(uint16_t meanVal, uint32_t count);
 
 #endif /*ADC_H_*/

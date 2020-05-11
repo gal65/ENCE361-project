@@ -12,6 +12,8 @@
 
 #include <stdint.h>
 
+#define BUF_SIZE 10 // size of buffer for reading accelerometer
+
 // *******************************************************
 // Buffer structure
 typedef struct {

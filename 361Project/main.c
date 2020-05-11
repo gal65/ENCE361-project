@@ -31,25 +31,19 @@
 #include "buttons4.h" //
 #include "floatToString.h" //
 #include "display.h" //
+#include "circBufT.h" //
 
 // Define Variables
-#define BUF_SIZE 10 // size of buffer for reading ADC
 #define SAMPLE_RATE_HZ 100 // rate for sampling accelerometers
 
 // Begin main loop
 int main(void)
 {
-    // Buffer of size BUF_SIZE integers (sample values) for each axis x, y and z
-    static circBuf_t inBuffer_x;
-    static circBuf_t inBuffer_y;
-    static circBuf_t inBuffer_z;
-    // Buffer of size BUF_SIZE integers (sample values) for the ADC (CURRENTLY NOT IN USE)
-    static circBuf_t inBuffer;
     static uint32_t ulSampCnt;    // Counter for the interrupts
 
     // Initialise components
     initClockADC(ulSampCnt, SAMPLE_RATE_HZ);
-    initADC(&inBuffer);
+    initADC();
     initDisplay();
     initCircBuf(&inBuffer, BUF_SIZE);
     initCircBuf(&inBuffer_x, BUF_SIZE);
@@ -62,7 +56,6 @@ int main(void)
     IntMasterEnable(); // Enable interrupts to the processor.
 
     // Declaring vector struct variables
-    vector3_t acceleration;
     vector3_t mean_acc;
     vector3_t offset;
     vector3_t offset_mean;
@@ -78,7 +71,7 @@ int main(void)
 
     // Variables used upon startup for the initialisation calibration
     int init_cycles = 0;
-    int initialised = 0;
+    int acc_buf_filled = 0;
 
     while (1) // TODO: On SYSCLK interrupt raising main_flag, run this while loop.
     {
@@ -94,20 +87,16 @@ int main(void)
 
         // Pulls the data from the accelerometer and then collects it in a circular buffer
         // The mean is then calculated and stored in a separate variable
-        acceleration = getAcclData();
-        acceleration = getAcclData();
-        store_accl(acceleration, &inBuffer_x, &inBuffer_y, &inBuffer_z);
-        mean_acc = calculate_mean(&inBuffer_x, &inBuffer_y, &inBuffer_z,
-                                  BUF_SIZE);
+        mean_acc = getAcclData();
 
         // Upon initialization, the device waits until the buffers have been
         // filled and then uses the mean to set the first offset
-        if (initialised == 0)
+        if (acc_buf_filled == 0)
         {
             init_cycles++;
             if (init_cycles > BUF_SIZE)
             {
-                initialised = 1;
+                acc_buf_filled = 1;
                 offset = mean_acc;
             }
         }
@@ -117,6 +106,7 @@ int main(void)
         offset_mean.y = mean_acc.y - offset.y;
         offset_mean.z = mean_acc.z - offset.z;
 
+        // If recalibrate button pressed, set current mean as the new offset
         if (pollData.flag == 1)
         {
             offset = mean_acc;

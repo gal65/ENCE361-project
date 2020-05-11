@@ -1,3 +1,4 @@
+
 /*
 *
 * Interrupts and Circular Buffers
@@ -9,8 +10,7 @@
 */
 
 #include "ADC.h"
-
-static circBuf_t *inBuffer;
+#include "readAcc.h"
 
 //*****************************************************************************
 //
@@ -25,28 +25,6 @@ SysTickIntHandler(void)//uint32_t ulSampCnt)
     //
     ADCProcessorTrigger(ADC0_BASE, 3); 
     //ulSampCnt++;
-}
-
-//*****************************************************************************
-//
-// The handler for the ADC conversion complete interrupt.
-// Writes to the circular buffer.
-//
-//*****************************************************************************
-void ADCIntHandler(void)
-{
-	uint32_t ulValue;
-	
-	//
-	// Get the single sample from ADC0.  ADC_BASE is defined in
-	// inc/hw_memmap.h
-	ADCSequenceDataGet(ADC0_BASE, 3, &ulValue);
-	//
-	// Place it in the circular buffer (advancing write index)
-	writeCircBuf(inBuffer, ulValue);
-	//
-	// Clean up, clearing the interrupt
-	ADCIntClear(ADC0_BASE, 3);                          
 }
 
 //*****************************************************************************
@@ -72,10 +50,10 @@ void initClockADC (uint32_t ulSampCnt, uint32_t SAMPLE_RATE_HZ)
     SysTickEnable();
 }
 
-void initADC (circBuf_t* inBufferPointer)
+void initADC(void)
 {
-
-    inBuffer = inBufferPointer;
+    //static circBuf_t *inBuffer;
+    //inBuffer = inBufferPointer;
     //
     // The ADC0 peripheral must be enabled for configuration and use.
     SysCtlPeripheralEnable(SYSCTL_PERIPH_ADC0);
@@ -110,17 +88,35 @@ void initADC (circBuf_t* inBufferPointer)
     ADCIntEnable(ADC0_BASE, 3);
 }
 
-/*void initDisplayADC (void)
+
+// The handler for the ADC conversion complete interrupt.
+// Writes to the circular buffer.
+void ADCIntHandler(void)
+{
+    uint32_t ulValue;
+
+    // Get the single sample from ADC0.  ADC_BASE is defined in
+    // inc/hw_memmap.h
+    ADCSequenceDataGet(ADC0_BASE, 3, &ulValue);
+    //
+    // Place it in the circular buffer (advancing write index)
+    //writeCircBuf(inBuffer, ulValue);
+    //
+    // Clean up, clearing the interrupt
+    ADCIntClear(ADC0_BASE, 3);
+}
+
+/* ADC FUNCTIONS ARE DISABLED!
+ *
+ *
+void initDisplayADC (void)
 {
     // intialise the Orbit OLED display
     OLEDInitialise ();
-}*/
+}
 
-//*****************************************************************************
-//
+
 // Function to display the mean ADC value (10-bit value, note) and sample count.
-//
-//*****************************************************************************
 void displayMeanVal(uint16_t meanVal, uint32_t count)
 {
 	char string[17];  // 16 characters across the display
@@ -136,3 +132,6 @@ void displayMeanVal(uint16_t meanVal, uint32_t count)
     usnprintf (string, sizeof(string), "Sample # %5d", count);
     OLEDStringDraw (string, 0, 3);
 }
+*
+* ADC FUNCTIONS ARE DISABLED!
+*/
