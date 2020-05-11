@@ -1,9 +1,9 @@
 /* display.c
  * Init, form and display strings on OLED display.
  *
- *  Created on: 11/05/2020
- *      Author: S. Allen
- *      Based on code by C. Moore
+ * FitnessMonGroup8
+ * S. Allen, J. Zhu, G. Lay
+ * Based on code by C. Moore
  */
 
 #include <stdbool.h>
@@ -38,6 +38,7 @@ void initDisplay(void)
 // Form strings for RAW display mode
 void displayRAW(vector3_t offset_mean)
 {
+    OLEDStringDraw ("Accelerometer", 0, 0);
     displayUpdate("Accl", "X", offset_mean.x, "raw", 1);
     displayUpdate("Accl", "Y", offset_mean.y, "raw", 2);
     displayUpdate("Accl", "Z", offset_mean.z, "raw", 3);
@@ -63,6 +64,7 @@ void displayGRAV(vector3_t offset_mean)
     ftos(acceleration_floats.z, acc_float_z, INT_PLACES, DEC_PLACES);
 
     // Update the display
+    OLEDStringDraw ("Accelerometer", 0, 0);
     displayUpdateFloatStr("", "X", acc_float_x, "G", 1);
     displayUpdateFloatStr("", "Y", acc_float_y, "G", 2);
     displayUpdateFloatStr("", "Z", acc_float_z, "G", 3);
@@ -87,6 +89,7 @@ void displayMSS(vector3_t offset_mean)
     ftos(acceleration_floats.z, acc_float_z, INT_PLACES, DEC_PLACES);
 
     // Update the display
+    OLEDStringDraw ("Accelerometer", 0, 0);
     displayUpdateFloatStr("", "X", acc_float_x, "m/s/s", 1);
     displayUpdateFloatStr("", "Y", acc_float_y, "m/s/s", 2);
     displayUpdateFloatStr("", "Z", acc_float_z, "m/s/s", 3);

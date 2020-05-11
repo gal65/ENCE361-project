@@ -2,15 +2,13 @@
 #define READACC_H_
 
 /*******************************************************
- *
  * acc.h
- *
  * Support for interfacing with the ADXL345 accelerometer
  * on the Orbit BoosterPack.
  *
- * Mon 11 Group 20
- *
- * C.P. Moore
+ * FitnessMonGroup8
+ * S. Allen, J. Zhu, G. Lay
+ * Based on code by C.P. Moore
  * Last modified:  24/02/2020
  *
 *******************************************************/

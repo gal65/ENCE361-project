@@ -1,8 +1,9 @@
 /*
  * display.h
  *
- *  Created on: 11/05/2020
- *      Author: simon
+ * FitnessMonGroup8
+ * S. Allen, J. Zhu, G. Lay
+ *
  */
 
 #ifndef DISPLAY_H_

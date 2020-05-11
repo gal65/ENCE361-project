@@ -1,12 +1,12 @@
 /**********************************************************
- *
  * readAcc.c
  *
  * Example code which reads acceleration in
  * three dimensions and displays the resulting data on
  * the Orbit OLED display.
  *
- * Mon 11 Group 20
+ * FitnessMonGroup8
+ * S. Allen, J. Zhu, G. Lay
  *
  *    C. P. Moore
  *    11 Feb 2020

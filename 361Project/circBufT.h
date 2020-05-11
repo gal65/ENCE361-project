@@ -1,16 +1,12 @@
 #ifndef CIRCBUFT_H_
 #define CIRCBUFT_H_
 
-// *******************************************************
-// 
 // circBufT.h
+// Support for a circular buffer of uint32_t values on the Tiva processor.
 //
-// Support for a circular buffer of uint32_t values on the 
-//  Tiva processor.
-//
-// Mon 11 Group 20
-//
-// P.J. Bones UCECE
+// FitnessMonGroup8
+// S. Allen, J. Zhu, G. Lay
+// Based on code by P.J. Bones UCECE
 // Last modified:  7.3.2017
 // 
 // *******************************************************

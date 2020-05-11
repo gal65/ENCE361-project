@@ -1,8 +1,8 @@
-/**
+/*
  * main.c
  * Main source file for ENCE361 Project 1, Milestone 1
  *
- * Mon 11 Group 20
+ * FitnessMonGroup8
  * S. Allen, J. Zhu, G. Lay
  *
  * Authors; S. Allen, J. Zhu, G. Lay
@@ -13,7 +13,6 @@
 // TODO; implement circular buffers and averaging
 // tidy everything up
 // confirm modularity
-
 #include <readAcc.h>
 #include <stdint.h>
 #include <stdbool.h>
@@ -59,13 +58,13 @@ int main(void)
     static uint32_t ulSampCnt;    // Counter for the interrupts
 
     // Initialise components
-    initClockADC (ulSampCnt, SAMPLE_RATE_HZ);
-    initADC (&inBuffer);
+    initClockADC(ulSampCnt, SAMPLE_RATE_HZ);
+    initADC(&inBuffer);
     initDisplay();
-    initCircBuf (&inBuffer, BUF_SIZE);
-    initCircBuf (&inBuffer_x, BUF_SIZE);
-    initCircBuf (&inBuffer_y, BUF_SIZE);
-    initCircBuf (&inBuffer_z, BUF_SIZE);
+    initCircBuf(&inBuffer, BUF_SIZE);
+    initCircBuf(&inBuffer_x, BUF_SIZE);
+    initCircBuf(&inBuffer_y, BUF_SIZE);
+    initCircBuf(&inBuffer_z, BUF_SIZE);
     initButtons();
     initAccl();
 
@@ -79,42 +78,44 @@ int main(void)
     vector3_t offset_mean;
 
     // Initialising offsets to 0
-       offset.x = 0;
-       offset.y = 0;
-       offset.z = 0;
+    offset.x = 0;
+    offset.y = 0;
+    offset.z = 0;
 
     // Enable changing the displayed units
-       uint8_t unitMode = UNITS_RAW;
-       vector_poll pollData;
-
-    OLEDStringDraw ("Accelerometer", 0, 0);
+    uint8_t unitMode = UNITS_RAW;
+    vector_poll pollData;
 
     // Variables used upon startup for the initialisation calibration
     int init_cycles = 0;
     int initialised = 0;
 
-    while (1)
+    while (1) // TODO: On SYSCLK interrupt raising main_flag, run this while loop.
     {
         // Check buttons and update mode if required
+        // TODO: interrupts for buttons
         pollData = pollButtons(unitMode);
         unitMode = pollData.dispMode;
 
-        // Loop for accelerometer (TODO; turn into task)
+        // Loop for accelerometer (TODO; turn this whole loop into a task triggered by an interrupt raising a flag.)
         // THIS IS CAUSING THE LONG PRESS BUG, when combined with SysCtlDelay elsewhere (ie in buttons4.c)
-        // THIS IS BAD METHOD - need to use interrupts properly. On clock interrupt, run this loop.
+        // THIS IS BAD METHOD - need to use interrupts properly.
         SysCtlDelay(SysCtlClockGet() / 64);    // (not) approx 2 Hz
 
         // Pulls the data from the accelerometer and then collects it in a circular buffer
         // The mean is then calculated and stored in a separate variable
         acceleration = getAcclData();
-        acceleration = getAcclData(unitMode);
+        acceleration = getAcclData();
         store_accl(acceleration, &inBuffer_x, &inBuffer_y, &inBuffer_z);
-        mean_acc = calculate_mean(&inBuffer_x, &inBuffer_y, &inBuffer_z, BUF_SIZE);
+        mean_acc = calculate_mean(&inBuffer_x, &inBuffer_y, &inBuffer_z,
+                                  BUF_SIZE);
 
         // Upon initialization, the device waits until the buffers have been filled and then uses the mean to set the first offset
-        if (initialised == 0) {
-            init_cycles++; // Problem here; when init_cycles wraps around, we'll get no updates for BUF_SIZE cycles
-            if (init_cycles > BUF_SIZE) {
+        if (initialised == 0)
+        {
+            init_cycles++;
+            if (init_cycles > BUF_SIZE)
+            {
                 initialised = 1;
                 offset = mean_acc;
             }
@@ -125,7 +126,8 @@ int main(void)
         offset_mean.y = mean_acc.y - offset.y;
         offset_mean.z = mean_acc.z - offset.z;
 
-        if (pollData.flag == 1) {
+        if (pollData.flag == 1)
+        {
             offset = mean_acc;
         }
 
