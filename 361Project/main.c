@@ -42,11 +42,6 @@
 //*****************************************************************************
 #define BUF_SIZE 10 // size of buffer for reading ADC
 #define SAMPLE_RATE_HZ 100 // rate for sampling accelerometers
-#define GRAV_CONV 256 // conversion factor for raw accelerometer data to gravities - change if changing accelerometer settings
-#define MPS_CONV 26 // conversion factor for raw accelerometer data to meters per second per second - change if changing accelerometer settings
-#define INT_PLACES 2 // number of integer places for float display
-#define DEC_PLACES 2 // number of decimal places for float display
-
 
 /********************************************************
  * main
@@ -75,12 +70,10 @@ int main(void)
     initAccl();
 
     FPUEnable(); // enable FPU co-processor
-
     IntMasterEnable(); // Enable interrupts to the processor.
 
     // Declaring vector struct variables
     vector3_t acceleration;
-    vector3_float acceleration_floats;
     vector3_t mean_acc;
     vector3_t offset;
     vector3_t offset_mean;
@@ -102,22 +95,17 @@ int main(void)
 
     while (1)
     {
-        // Declare strings for float-to-string conversion
-        char acc_float_x[5];
-        char acc_float_y[5];
-        char acc_float_z[5];
-
         // Check buttons and update mode if required
         pollData = pollButtons(unitMode);
         unitMode = pollData.dispMode;
 
         // Loop for accelerometer (TODO; turn into task)
         // THIS IS CAUSING THE LONG PRESS BUG, when combined with SysCtlDelay elsewhere (ie in buttons4.c)
-        // need to use interrupts properly
+        // THIS IS BAD METHOD - need to use interrupts properly. On clock interrupt, run this loop.
         SysCtlDelay(SysCtlClockGet() / 64);    // (not) approx 2 Hz
 
         // Pulls the data from the accelerometer and then collects it in a circular buffer
-        // The mean is then calculated and stored in a seperate variable
+        // The mean is then calculated and stored in a separate variable
         acceleration = getAcclData();
         acceleration = getAcclData(unitMode);
         store_accl(acceleration, &inBuffer_x, &inBuffer_y, &inBuffer_z);
@@ -125,7 +113,7 @@ int main(void)
 
         // Upon initialization, the device waits until the buffers have been filled and then uses the mean to set the first offset
         if (initialised == 0) {
-            init_cycles++;
+            init_cycles++; // Problem here; when init_cycles wraps around, we'll get no updates for BUF_SIZE cycles
             if (init_cycles > BUF_SIZE) {
                 initialised = 1;
                 offset = mean_acc;
@@ -141,42 +129,19 @@ int main(void)
             offset = mean_acc;
         }
 
+        // Select display logic based on mode
         switch (unitMode)
         {
-        case 0: // Raw mode - MAGIC NUMBER - Why does switch not like using enumerated or declared constants?
-            displayUpdate("Accl", "X", offset_mean.x, "raw", 1);
-            displayUpdate("Accl", "Y", offset_mean.y, "raw", 2);
-            displayUpdate("Accl", "Z", offset_mean.z, "raw", 3);
+        case 0: // Raw mode - MAGIC NUMBER? - Why does switch() not like using enumerated or declared constants?
+            displayRAW(offset_mean);
             break;
 
         case 1: // Gravities mode
-            // Convert raw values to units of gravity, as floats
-            acceleration_floats.x = (float)offset_mean.x / GRAV_CONV;
-            acceleration_floats.y = (float)offset_mean.y / GRAV_CONV;
-            acceleration_floats.z = (float)offset_mean.z / GRAV_CONV;
-            // Convert float values to strings printable by usnprintf()
-            ftos(acceleration_floats.x, acc_float_x, INT_PLACES, DEC_PLACES);
-            ftos(acceleration_floats.y, acc_float_y, INT_PLACES, DEC_PLACES);
-            ftos(acceleration_floats.z, acc_float_z, INT_PLACES, DEC_PLACES);
-            // Update the display
-            displayUpdateFloatStr("", "X", acc_float_x, "G", 1);
-            displayUpdateFloatStr("", "Y", acc_float_y, "G", 2);
-            displayUpdateFloatStr("", "Z", acc_float_z, "G", 3);
+            displayGRAV(offset_mean);
             break;
 
         case 2: // MPS mode
-            // Convert raw values to units of meters per second, as floats
-            acceleration_floats.x = (float)offset_mean.x / MPS_CONV;
-            acceleration_floats.y = (float)offset_mean.y / MPS_CONV;
-            acceleration_floats.z = (float)offset_mean.z / MPS_CONV;
-            // Convert float values to strings printable by usnprintf()
-            ftos(acceleration_floats.x, acc_float_x, INT_PLACES, DEC_PLACES);
-            ftos(acceleration_floats.y, acc_float_y, INT_PLACES, DEC_PLACES);
-            ftos(acceleration_floats.z, acc_float_z, INT_PLACES, DEC_PLACES);
-            // Update the display
-            displayUpdateFloatStr("", "X", acc_float_x, "m/s/s", 1);
-            displayUpdateFloatStr("", "Y", acc_float_y, "m/s/s", 2);
-            displayUpdateFloatStr("", "Z", acc_float_z, "m/s/s", 3);
+            displayMSS(offset_mean);
             break;
         }
     }

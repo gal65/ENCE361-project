@@ -38,12 +38,6 @@ typedef struct{
     int16_t z;
 } vector3_t;
 
-typedef struct{
-    float x;
-    float y;
-    float z;
-} vector3_float;
-
 // Definition of unit modes
 #define UNITS_RAW 0;
 #define UNITS_GRAV 1;
