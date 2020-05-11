@@ -41,9 +41,7 @@ typedef struct{
 #define UNITS_GRAV 1;
 #define UNITS_MPS 2;
 
-/*
- * Accl Interrupt Pins
- */
+// Accl Interrupt Pins
 #define ACCL_INT1Port       GPIO_PORTB_BASE
 #define ACCL_INT2Port       GPIO_PORTE_BASE
 #define ACCL_INT1           GPIO_PIN_4
@@ -91,36 +89,25 @@ typedef struct{
 #define ACCL_RATE_0_20HZ    0x01
 #define ACCL_RATE_0_10HZ    0x00
 
-//*****************************************************************************
 // Void function to display a changing message on the display.
 // The display has 4 rows of 16 characters, with 0, 0 at top left.
-//*****************************************************************************
 void displayUpdate (char *str1, char *str2, int16_t num, char *str3, uint8_t charLine);
 
-//*****************************************************************************
 // Display function, version for displaying floats
 // The display has 4 rows of 16 characters, with 0, 0 at top left.
-//*****************************************************************************
 void displayUpdateFloatStr (char *str1, char *str2, char *float_string, char *str3, uint8_t charLine);
 
-/*********************************************************
- * Void function to initialise accelerometer functions.
- *********************************************************/
+
+// Void function to initialise accelerometer functions.
 void initAccl (void);
 
-/********************************************************
- * Void function to read accelerometer. Returns a vector3_t struct.
- ********************************************************/
+// Void function to read accelerometer. Returns a vector3_t struct.
 vector3_t getAcclData ();
 
-//*****************************************************************************
 // Stores the values obtained by the accelerometer into the circular buffer
-//*****************************************************************************
 void store_accl(vector3_t acceleration, circBuf_t *buffer_x, circBuf_t *buffer_y, circBuf_t *buffer_z);
 
-//*****************************************************************************
 // Calculates the mean of the circular buffer and returns a 3 vector of x, y and z
-//*****************************************************************************
 vector3_t calculate_mean(circBuf_t *buffer_x, circBuf_t *buffer_y, circBuf_t *buffer_z, uint8_t buf_size);
 
 // void function to reset the calibration of the accelerometer as displayed

@@ -1,5 +1,4 @@
-/*
- * display.h
+/* display.h
  *
  * FitnessMonGroup8
  * S. Allen, J. Zhu, G. Lay

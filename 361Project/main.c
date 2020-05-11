@@ -1,5 +1,4 @@
-/*
- * main.c
+/* main.c
  * Main source file for ENCE361 Project 1, Milestone 1
  *
  * FitnessMonGroup8
@@ -10,9 +9,6 @@
  * Created; 10/03/2020
  */
 
-// TODO; implement circular buffers and averaging
-// tidy everything up
-// confirm modularity
 #include <readAcc.h>
 #include <stdint.h>
 #include <stdbool.h>
@@ -36,25 +32,19 @@
 #include "floatToString.h" //
 #include "display.h" //
 
-//*****************************************************************************
-// Variables
-//*****************************************************************************
+// Define Variables
 #define BUF_SIZE 10 // size of buffer for reading ADC
 #define SAMPLE_RATE_HZ 100 // rate for sampling accelerometers
 
-/********************************************************
- * main
- ********************************************************/
+// Begin main loop
 int main(void)
 {
     // Buffer of size BUF_SIZE integers (sample values) for each axis x, y and z
     static circBuf_t inBuffer_x;
     static circBuf_t inBuffer_y;
     static circBuf_t inBuffer_z;
-
     // Buffer of size BUF_SIZE integers (sample values) for the ADC (CURRENTLY NOT IN USE)
     static circBuf_t inBuffer;
-
     static uint32_t ulSampCnt;    // Counter for the interrupts
 
     // Initialise components
@@ -97,7 +87,7 @@ int main(void)
         pollData = pollButtons(unitMode);
         unitMode = pollData.dispMode;
 
-        // Loop for accelerometer (TODO; turn this whole loop into a task triggered by an interrupt raising a flag.)
+        // Loop for accelerometer (TODO; turn this whole loop into a task triggered by an interrupt raising a flag)
         // THIS IS CAUSING THE LONG PRESS BUG, when combined with SysCtlDelay elsewhere (ie in buttons4.c)
         // THIS IS BAD METHOD - need to use interrupts properly.
         SysCtlDelay(SysCtlClockGet() / 64);    // (not) approx 2 Hz
@@ -110,7 +100,8 @@ int main(void)
         mean_acc = calculate_mean(&inBuffer_x, &inBuffer_y, &inBuffer_z,
                                   BUF_SIZE);
 
-        // Upon initialization, the device waits until the buffers have been filled and then uses the mean to set the first offset
+        // Upon initialization, the device waits until the buffers have been
+        // filled and then uses the mean to set the first offset
         if (initialised == 0)
         {
             init_cycles++;

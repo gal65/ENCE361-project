@@ -1,5 +1,4 @@
-/**********************************************************
- * readAcc.c
+/* readAcc.c
  *
  * Example code which reads acceleration in
  * three dimensions and displays the resulting data on
@@ -7,11 +6,8 @@
  *
  * FitnessMonGroup8
  * S. Allen, J. Zhu, G. Lay
- *
- *    C. P. Moore
- *    11 Feb 2020
- *
- **********************************************************/
+ * Based on code by C. P. Moore
+ */
 
 #include <readAcc.h>
 
@@ -34,49 +30,29 @@ enum dispModes {RAW = 0, GRAV, MPS};
                    SYSCTL_XTAL_16MHZ);
 } */
 
-/*********************************************************
- * initDisplay
- *********************************************************/
-/*void initDisplay (void)
-{
-    // Initialise the Orbit OLED display
-    OLEDInitialise ();
-} */
-
-
-
-/*********************************************************
- * initAccl
- *********************************************************/
+// Initiate accelerometer
 void initAccl (void)
 {
     char    toAccl[] = {0, 0};  // parameter, value
 
-    /*
-     * Enable I2C Peripheral
-     */
+    // Enable I2C Peripheral
     SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOB);
     SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOE);
     SysCtlPeripheralEnable(SYSCTL_PERIPH_I2C0);
     SysCtlPeripheralReset(SYSCTL_PERIPH_I2C0);
 
-    /*
-     * Set I2C GPIO pins
-     */
+    // Set I2C GPIO pins
     GPIOPinTypeI2C(I2CSDAPort, I2CSDA_PIN);
     GPIOPinTypeI2CSCL(I2CSCLPort, I2CSCL_PIN);
     GPIOPinConfigure(I2CSCL);
     GPIOPinConfigure(I2CSDA);
 
-    /*
-     * Setup I2C
-     */
+    // Setup I2C
     I2CMasterInitExpClk(I2C0_BASE, SysCtlClockGet(), true);
 
     GPIOPinTypeGPIOInput(ACCL_INT2Port, ACCL_INT2);
 
-    //Initialize ADXL345 Acceleromter
-
+    //Initialize ADXL345 Accelerometer
     // set +-2g, 10 bit resolution, active low interrupts
     toAccl[0] = ACCL_DATA_FORMAT;
     toAccl[1] = (ACCL_RANGE_16G | ACCL_FULL_RES);
