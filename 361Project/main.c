@@ -31,11 +31,11 @@
 #include "utils/ustdlib.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include "OrbitOLED/OrbitOLEDInterface.h"
-#include "ADC.h"
-#include "readAcc.h"
-#include "buttons4.h"
-#include "floatToString.h"
+#include "ADC.h" //
+#include "readAcc.h" //
+#include "buttons4.h" //
+#include "floatToString.h" //
+#include "display.h" //
 
 //*****************************************************************************
 // Variables
@@ -66,7 +66,7 @@ int main(void)
     // Initialise components
     initClockADC (ulSampCnt, SAMPLE_RATE_HZ);
     initADC (&inBuffer);
-    OLEDInitialise ();
+    initDisplay();
     initCircBuf (&inBuffer, BUF_SIZE);
     initCircBuf (&inBuffer_x, BUF_SIZE);
     initCircBuf (&inBuffer_y, BUF_SIZE);

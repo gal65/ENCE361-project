@@ -43,39 +43,7 @@ enum dispModes {RAW = 0, GRAV, MPS};
     OLEDInitialise ();
 } */
 
-//*****************************************************************************
-// Function to display a changing message on the display.
-// The display has 4 rows of 16 characters, with 0, 0 at top left.
-//*****************************************************************************
-void displayUpdate (char *str1, char *str2, int16_t num, char *str3, uint8_t charLine)
-{
-    char text_buffer[17];           //Display fits 16 characters wide.
 
-    // "Undraw" the previous contents of the line to be updated.
-    OLEDStringDraw ("                ", 0, charLine);
-    // Form a new string for the line.  The maximum width specified for the
-    //  number field ensures it is displayed right justified.
-    usnprintf(text_buffer, sizeof(text_buffer), "%s %s %3d %s", str1, str2, num, str3);
-    // Update line on display.
-    OLEDStringDraw (text_buffer, 0, charLine);
-}
-
-//*****************************************************************************
-// Display function, version for displaying floats
-// The display has 4 rows of 16 characters, with 0, 0 at top left.
-//*****************************************************************************
-void displayUpdateFloatStr (char *str1, char *str2, char *float_string, char *str3, uint8_t charLine)
-{
-    char text_buffer[17];           //Display fits 16 characters wide.
-
-    // "Undraw" the previous contents of the line to be updated.
-    OLEDStringDraw ("                ", 0, charLine);
-    // Form a new string for the line.  The maximum width specified for the
-    //  number field ensures it is displayed right justified.
-    usnprintf(text_buffer, sizeof(text_buffer), "%s %s %s %s", str1, str2, float_string, str3);
-    // Update line on display.
-    OLEDStringDraw (text_buffer, 0, charLine);
-}
 
 /*********************************************************
  * initAccl
