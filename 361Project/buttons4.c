@@ -19,7 +19,7 @@
 // Globals to module
 // *******************************************************
 static bool but_state[NUM_BUTS];    // Corresponds to the electrical state
-static uint8_t but_count[NUM_BUTS];
+//static uint8_t but_count[NUM_BUTS];
 static bool but_flag[NUM_BUTS];
 static bool but_normal[NUM_BUTS];   // Corresponds to the electrical state
 
@@ -28,8 +28,6 @@ volatile uint32_t flagU;
 volatile uint32_t flagD;
 static uint32_t flagL = 0;
 static uint32_t flagR = 0;
-
-
 
 
 // initButtons: Initialise the variables associated with the set of buttons
@@ -74,7 +72,7 @@ void initButtons (void)
     for (i = 0; i < NUM_BUTS; i++)
     {
         but_state[i] = but_normal[i];
-        but_count[i] = 0;
+        //but_count[i] = 0;
         but_flag[i] = false;
     }
 
@@ -99,6 +97,7 @@ void initButtons (void)
     //IntRegister(RIGHT_BUT_PORT_BASE, RIGHTButIntHandler);
 }
 
+
 // *******************************************************
 // updateButtons: Function designed to be called regularly. It polls all
 // buttons once and updates variables associated with the buttons if
@@ -110,13 +109,12 @@ void initButtons (void)
 // a flag is set.  Set NUM_BUT_POLLS according to the polling rate.
 
 
-
-
 void UPButIntHandler (void)
 {
     flagU = 1;
     GPIOIntClear(UP_BUT_PORT_BASE, UP_BUT_PIN);
 }
+
 
 void DOWNButIntHandler (void)
 {
@@ -131,6 +129,7 @@ void LEFTButIntHandler (void)
     GPIOIntClear(LEFT_BUT_PORT_BASE, UP_BUT_PIN);
 }
 
+
 void RIGHTButIntHandler (void)
 {
     flagR = 1;
@@ -138,76 +137,73 @@ void RIGHTButIntHandler (void)
 }
 
 
+//void updateButtons (void)
+//{
+//    bool but_value[NUM_BUTS];
+//    int i;
+//
+//    // Read the pins; true means HIGH, false means LOW
+//    but_value[UP] = (GPIOPinRead (UP_BUT_PORT_BASE, UP_BUT_PIN) == UP_BUT_PIN);
+//    but_value[DOWN] = (GPIOPinRead (DOWN_BUT_PORT_BASE, DOWN_BUT_PIN) == DOWN_BUT_PIN);
+//    but_value[LEFT] = (GPIOPinRead (LEFT_BUT_PORT_BASE, LEFT_BUT_PIN) == LEFT_BUT_PIN);
+//    but_value[RIGHT] = (GPIOPinRead (RIGHT_BUT_PORT_BASE, RIGHT_BUT_PIN) == RIGHT_BUT_PIN);
+//
+//    // Iterate through the buttons, updating button variables as required
+//    for (i = 0; i < NUM_BUTS; i++)
+//    {
+//        if (but_value[i] != but_state[i])
+//        {
+//            but_count[i]++;
+//            if (but_count[i] >= NUM_BUT_POLLS)
+//            {
+//                but_state[i] = but_value[i];
+//                but_flag[i] = true;    // Reset by call to checkButton()
+//                but_count[i] = 0;
+//            }
+//        }
+//        else
+//            but_count[i] = 0;
+//    }
+//}
 
-void updateButtons (void)
-{
-    bool but_value[NUM_BUTS];
-    int i;
 
-    // Read the pins; true means HIGH, false means LOW
-    but_value[UP] = (GPIOPinRead (UP_BUT_PORT_BASE, UP_BUT_PIN) == UP_BUT_PIN);
-    but_value[DOWN] = (GPIOPinRead (DOWN_BUT_PORT_BASE, DOWN_BUT_PIN) == DOWN_BUT_PIN);
-    but_value[LEFT] = (GPIOPinRead (LEFT_BUT_PORT_BASE, LEFT_BUT_PIN) == LEFT_BUT_PIN);
-    but_value[RIGHT] = (GPIOPinRead (RIGHT_BUT_PORT_BASE, RIGHT_BUT_PIN) == RIGHT_BUT_PIN);
+//// *******************************************************
+//// checkButton: Function returns the new button logical state if the button
+//// logical state (PUSHED or RELEASED) has changed since the last call,
+//// otherwise returns NO_CHANGE.
+//uint8_t checkButton (uint8_t butName)
+//{
+//    if (but_flag[butName])
+//    {
+//        but_flag[butName] = false;
+//        if (but_state[butName] == but_normal[butName])
+//            return RELEASED;
+//        else
+//            return PUSHED;
+//    }
+//    return NO_CHANGE;
+//}
 
-    // Iterate through the buttons, updating button variables as required
-    for (i = 0; i < NUM_BUTS; i++)
-    {
-        if (but_value[i] != but_state[i])
-        {
-            but_count[i]++;
-            if (but_count[i] >= NUM_BUT_POLLS)
-            {
-                but_state[i] = but_value[i];
-                but_flag[i] = true;    // Reset by call to checkButton()
-                but_count[i] = 0;
-            }
-        }
-        else
-            but_count[i] = 0;
-    }
-}
-
-// *******************************************************
-// checkButton: Function returns the new button logical state if the button
-// logical state (PUSHED or RELEASED) has changed since the last call,
-// otherwise returns NO_CHANGE.
-uint8_t checkButton (uint8_t butName)
-{
-    if (but_flag[butName])
-    {
-        but_flag[butName] = false;
-        if (but_state[butName] == but_normal[butName])
-            return RELEASED;
-        else
-            return PUSHED;
-    }
-    return NO_CHANGE;
-}
 
 // Function to poll buttons; pushing UP will increment the mode cycle, pushing DOWN will set a flag to logic high
 // Only polls the flags set by the interrupts and does not require updating the buttons to do so
-vector_poll pollButtons(uint8_t dispMode)
+vector_inputs readButtonFlags(vector_inputs inputFlags)
 {
-    vector_poll pollState;
-
-    int flag = 0;
+//    int flag = 0;
 
     if (flagU == 1) {
-        if (dispMode == MPS) {
-            dispMode = RAW;
+        if (inputFlags.dispMode == MPS) {
+            inputFlags.dispMode = RAW;     // edit here for doing things with buttons
         } else {
-            dispMode++;
+            inputFlags.dispMode++;
         }
         flagU = 0;
     }
 
     if (flagD == 1) {
-        flag = 1;
+        inputFlags.D = 1;
         flagD = 0;
     }
-
-
 
     /*
     uint8_t butState;
@@ -239,11 +235,6 @@ vector_poll pollButtons(uint8_t dispMode)
     }
     */
 
-
-
-
-
-
     /*
      butState = checkButton(LEFT);
      switch (butState)
@@ -269,9 +260,10 @@ vector_poll pollButtons(uint8_t dispMode)
      }
      */
 
-    // set each field of the vector_poll
-    pollState.dispMode = dispMode;
-    pollState.flag = flag;
 
-    return pollState;
+    // set each field of the vector_buttons    - Better to do this as they happen?
+//    button_flags.dispMode = dispMode;
+//    button_flags.D = flag;
+
+    return inputFlags;
 }

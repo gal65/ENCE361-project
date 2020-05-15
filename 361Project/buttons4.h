@@ -62,9 +62,10 @@ enum dispModes {RAW = 0, GRAV, MPS};
 // Structure definition for poll buttons
 typedef struct{
     uint8_t dispMode;
-    int flag;
-} vector_poll;
-
+    int D;
+    int L;
+    int R;
+} vector_inputs;
 
 // *******************************************************
 // initButtons: Initialise the variables associated with the set of buttons
@@ -86,21 +87,16 @@ void LEFTButIntHandler (void);
 
 void RIGHTButIntHandler (void);
 
+// Function to poll buttons; pushing UP will increment the mode cycle, pushing DOWN will set a flag to logic high.
+// Returns a struct containing the mode cycle and state of the flag
+vector_inputs readButtonFlags(vector_inputs butflags);
 
-void updateButtons (void);
+//void updateButtons (void);
 
-// *******************************************************
 // checkButton: Function returns the new button state if the button state
 // (PUSHED or RELEASED) has changed since the last call, otherwise returns
 // NO_CHANGE.  The argument butName should be one of constants in the
 // enumeration butStates, excluding 'NUM_BUTS'. Safe under interrupt.
-uint8_t checkButton (uint8_t butName);
-
-// Function to poll buttons and if pushed, increment the mode cycler
-// Returns the new mode
-
-// Function to poll buttons; pushing UP will increment the mode cycle, pushing DOWN will set a flag to logic high.
-// Returns a struct containing the mode cycle and state of the flag
-vector_poll pollButtons(uint8_t dispMode);
+//uint8_t checkButton (uint8_t butName);
 
 #endif /*BUTTONS_H_*/

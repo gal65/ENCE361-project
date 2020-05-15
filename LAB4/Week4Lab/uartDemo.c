@@ -157,18 +157,18 @@ UARTSend (char *pucBuffer)
     }
 }
 
-//********************************************************
-// Function to display a status message on the OLED
-//********************************************************
-void
-displayButtonState (char *butStr, char *stateStr, uint8_t numPushes, uint8_t charLine)
-{
-    char string[MAX_STR_LEN + 1]; //Display fits 16 characters per line.
-	
-    OLEDStringDraw ("                ", 0, charLine);
-    usprintf (string, "%s - %s %d", butStr, stateStr, numPushes); // * usprintf
-    OLEDStringDraw (string, 0, charLine);
-}
+////********************************************************
+//// Function to display a status message on the OLED
+////********************************************************
+//void
+//displayButtonState (char *butStr, char *stateStr, uint8_t numPushes, uint8_t charLine)
+//{
+//    char string[MAX_STR_LEN + 1]; //Display fits 16 characters per line.
+//
+//    OLEDStringDraw ("                ", 0, charLine);
+//    usprintf (string, "%s - %s %d", butStr, stateStr, numPushes); // * usprintf
+//    OLEDStringDraw (string, 0, charLine);
+//}
 
 
 int

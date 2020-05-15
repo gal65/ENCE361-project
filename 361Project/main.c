@@ -3,10 +3,8 @@
  *
  * FitnessMonGroup8
  * S. Allen, J. Zhu, G. Lay
- *
- * Authors; S. Allen, J. Zhu, G. Lay
  * using material from P. Bones and C. Moore
- * Created; 10/03/2020
+ * Last modified; 15/05/2020
  */
 
 #include <readAcc.h>
@@ -66,8 +64,8 @@ int main(void)
     offset.z = 0;
 
     // Enable changing the displayed units
-    uint8_t unitMode = UNITS_RAW;
-    vector_poll pollData;
+//    uint8_t unitMode = UNITS_RAW;
+    vector_inputs inputFlags = {.dispMode=RAW, .D=0, .L=0, .R=0};
 
     // Variables used upon startup for the initialisation calibration
     int init_cycles = 0;
@@ -82,8 +80,8 @@ int main(void)
 
         // Check buttons and update mode if required
         // TODO: interrupts for buttons
-        pollData = pollButtons(unitMode);
-        unitMode = pollData.dispMode;
+        inputFlags = readButtonFlags(inputFlags);
+//        unitMode = butFlags.dispMode;
 
 
 
@@ -91,7 +89,7 @@ int main(void)
         // Pulls the data from the accelerometer and then collects it in a circular buffer
         // The mean is then calculated and stored in a separate variable
         mean_acc = getAcclData();
-
+        // TODO; trigger a step, increase step count
 
 
 
@@ -109,9 +107,10 @@ int main(void)
         }
 
         // If recalibrate button pressed, set current mean as the new offset
-        if (pollData.flag == 1)
+        if (inputFlags.D == 1)
         {
             offset = mean_acc;
+            inputFlags.D = 0;
         }
 
         // Calculates the current value to display by subtracting the current
@@ -126,7 +125,7 @@ int main(void)
 
 
         // Select display logic based on mode
-        switch (unitMode)
+        switch (inputFlags.dispMode)
         {
         case 0: // Raw mode - MAGIC NUMBER? - Why does switch() not like using enumerated or declared constants?
             displayRAW(offset_mean_acc);
