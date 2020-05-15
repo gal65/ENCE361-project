@@ -24,11 +24,19 @@ static bool but_flag[NUM_BUTS];
 static bool but_normal[NUM_BUTS];   // Corresponds to the electrical state
 
 // *******************************************************
+volatile uint32_t flagU;
+volatile uint32_t flagD;
+static uint32_t flagL = 0;
+static uint32_t flagR = 0;
+
+
+
 
 // initButtons: Initialise the variables associated with the set of buttons
 // defined by the constants in the buttons2.h header file.
 void initButtons (void)
 {
+
     int i;
 
     // UP button (active HIGH)
@@ -69,6 +77,26 @@ void initButtons (void)
         but_count[i] = 0;
         but_flag[i] = false;
     }
+
+    // Adding an interrupt system in the init***
+    //GPIOIntRegister(UP_BUT_PORT_BASE, UPButIntHandler);
+    GPIOIntRegister(UP_BUT_PORT_BASE, UPButIntHandler);
+    GPIOIntRegister(DOWN_BUT_PORT_BASE, DOWNButIntHandler);
+    GPIOIntRegister(LEFT_BUT_PORT_BASE, LEFTButIntHandler);
+    GPIOIntRegister(RIGHT_BUT_PORT_BASE, RIGHTButIntHandler);
+
+    GPIOIntTypeSet(UP_BUT_PORT_BASE, UP_BUT_PIN, GPIO_RISING_EDGE);
+    GPIOIntTypeSet(DOWN_BUT_PORT_BASE, DOWN_BUT_PIN, GPIO_RISING_EDGE);
+    GPIOIntTypeSet(LEFT_BUT_PORT_BASE, LEFT_BUT_PIN, GPIO_FALLING_EDGE);
+    GPIOIntTypeSet(RIGHT_BUT_PORT_BASE, RIGHT_BUT_PIN, GPIO_FALLING_EDGE);
+
+    GPIOIntEnable(UP_BUT_PORT_BASE, UP_BUT_PIN);
+    GPIOIntEnable(DOWN_BUT_PORT_BASE, DOWN_BUT_PIN);
+    GPIOIntEnable(LEFT_BUT_PORT_BASE, LEFT_BUT_PIN);
+    GPIOIntEnable(RIGHT_BUT_PORT_BASE, RIGHT_BUT_PIN);
+
+    //IntRegister(LEFT_BUT_PORT_BASE, LEFTButIntHandler);
+    //IntRegister(RIGHT_BUT_PORT_BASE, RIGHTButIntHandler);
 }
 
 // *******************************************************
@@ -80,6 +108,37 @@ void initButtons (void)
 // A state change occurs only after NUM_BUT_POLLS consecutive polls have
 // read the pin in the opposite condition, before the state changes and
 // a flag is set.  Set NUM_BUT_POLLS according to the polling rate.
+
+
+
+
+void UPButIntHandler (void)
+{
+    flagU = 1;
+    GPIOIntClear(UP_BUT_PORT_BASE, UP_BUT_PIN);
+}
+
+void DOWNButIntHandler (void)
+{
+    flagD = 1;
+    GPIOIntClear(DOWN_BUT_PORT_BASE, DOWN_BUT_PIN);
+}
+
+
+void LEFTButIntHandler (void)
+{
+    flagL = 1;
+    GPIOIntClear(LEFT_BUT_PORT_BASE, UP_BUT_PIN);
+}
+
+void RIGHTButIntHandler (void)
+{
+    flagR = 1;
+    GPIOIntClear(RIGHT_BUT_PORT_BASE, UP_BUT_PIN);
+}
+
+
+
 void updateButtons (void)
 {
     bool but_value[NUM_BUTS];
@@ -90,6 +149,7 @@ void updateButtons (void)
     but_value[DOWN] = (GPIOPinRead (DOWN_BUT_PORT_BASE, DOWN_BUT_PIN) == DOWN_BUT_PIN);
     but_value[LEFT] = (GPIOPinRead (LEFT_BUT_PORT_BASE, LEFT_BUT_PIN) == LEFT_BUT_PIN);
     but_value[RIGHT] = (GPIOPinRead (RIGHT_BUT_PORT_BASE, RIGHT_BUT_PIN) == RIGHT_BUT_PIN);
+
     // Iterate through the buttons, updating button variables as required
     for (i = 0; i < NUM_BUTS; i++)
     {
@@ -126,9 +186,30 @@ uint8_t checkButton (uint8_t butName)
 }
 
 // Function to poll buttons; pushing UP will increment the mode cycle, pushing DOWN will set a flag to logic high
+// Only polls the flags set by the interrupts and does not require updating the buttons to do so
 vector_poll pollButtons(uint8_t dispMode)
 {
     vector_poll pollState;
+
+    int flag = 0;
+
+    if (flagU == 1) {
+        if (dispMode == MPS) {
+            dispMode = RAW;
+        } else {
+            dispMode++;
+        }
+        flagU = 0;
+    }
+
+    if (flagD == 1) {
+        flag = 1;
+        flagD = 0;
+    }
+
+
+
+    /*
     uint8_t butState;
     int flag = 0;
 
@@ -156,6 +237,13 @@ vector_poll pollButtons(uint8_t dispMode)
         break;
         // Do nothing if state is NO_CHANGE or RELEASED
     }
+    */
+
+
+
+
+
+
     /*
      butState = checkButton(LEFT);
      switch (butState)

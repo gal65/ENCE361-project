@@ -22,6 +22,10 @@
 #include "inc/tm4c123gh6pm.h"  // Board specific defines (for PF0)
 #include "readAcc.h"
 
+// For interrupts
+//#include "inc/hw_ints.h"
+#include "driverlib/interrupt.h"
+
 //*****************************************************************************
 // Constants
 //*****************************************************************************
@@ -61,6 +65,7 @@ typedef struct{
     int flag;
 } vector_poll;
 
+
 // *******************************************************
 // initButtons: Initialise the variables associated with the set of buttons
 // defined by the constants above.
@@ -71,6 +76,17 @@ void initButtons (void);
 // buttons once and updates variables associated with the buttons if
 // necessary.  It is efficient enough to be part of an ISR, e.g. from
 // a SysTick interrupt.
+
+
+void UPButIntHandler (void);
+
+void DOWNButIntHandler (void);
+
+void LEFTButIntHandler (void);
+
+void RIGHTButIntHandler (void);
+
+
 void updateButtons (void);
 
 // *******************************************************
