@@ -76,7 +76,7 @@ int main(void)
 
     // Enable changing the displayed units
 //    uint8_t unitMode = UNITS_RAW;
-    vector_inputs inputFlags = {.dispMode=RAW, .D=0, .L=0, .R=0};
+    vector_inputs inputFlags = {.dispMode=RAW, .D=0, .L=0, .R=0, .U=0};
 
     while (1) // TODO: On SYSCLK interrupt raising main_flag, run this while loop.
     {

@@ -65,6 +65,7 @@ typedef struct{
     int D;
     int L;
     int R;
+    int U;
 } vector_inputs;
 
 // *******************************************************
