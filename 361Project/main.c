@@ -58,6 +58,16 @@ int main(void)
     vector3_t offset;
     vector3_t offset_mean_acc;
 
+    vector3_t steps; //
+    steps.x = 0; //
+    steps.y = 0; //
+    steps.z = 0; //
+
+    // declaring int variables and initialising values to 0
+    int total_steps = 0;
+    int less_than = 0;
+    int prev_less_than = 0;
+
     // Initialising offsets to 0
     offset.x = 0;
     offset.y = 0;
@@ -91,7 +101,8 @@ int main(void)
         mean_acc = getAcclData();
         // TODO; trigger a step, increase step count
 
-
+        // calculate the norm of the x, y, and z acceleration readings in G's (could maybe make it a one argument function taking a vector3_t)
+        int16_t accel_norm = calculate_norm(mean_acc); //
 
         // CALIBRATION OF ACCELEROMETERS
         // Upon initialization, the device waits until the buffers have been
@@ -119,16 +130,19 @@ int main(void)
         offset_mean_acc.y = mean_acc.y - offset.y;
         offset_mean_acc.z = mean_acc.z - offset.z;
 
-
-
-
-
+        // flag is set based on norm
+        less_than = less_than_flag(accel_norm);
+        // will increment step count based on the 2 flags
+        total_steps = step_increment(total_steps, less_than, prev_less_than);
+        // update previous flag
+        prev_less_than = less_than;
+        steps.x = total_steps; // won't need this when gui is done
 
         // Select display logic based on mode
         switch (inputFlags.dispMode)
         {
         case 0: // Raw mode - MAGIC NUMBER? - Why does switch() not like using enumerated or declared constants?
-            displayRAW(offset_mean_acc);
+            displayRAW(steps); //changed this to display steps to know it works
             break;
 
         case 1: // Gravities mode
