@@ -17,11 +17,11 @@ typedef struct{
 
 void initDisplay(void);
 
-void displayRAW(vector3_t offset_mean);
+void displayRAW(uint32_t offset_mean);
 
-void displayGRAV(vector3_t offset_mean);
+void displayKMeters(uint32_t offset_mean);
 
-void displayMSS(vector3_t offset_mean);
+void displayMiles(uint32_t offset_mean);
 
 void displayUpdate (char *str1, char *str2, int16_t num, char *str3, uint8_t charLine);
 

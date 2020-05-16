@@ -6,6 +6,13 @@
  * Based on code by C. Moore
  */
 
+#define GRAV_CONV 256   // conversion factor for raw accelerometer data to gravities - change if changing accelerometer settings
+#define MPS_CONV 26     // conversion factor for raw accelerometer data to meters per second per second - change if changing accelerometer settings
+#define KM_CONV 0.9     // conversion factor for steps to km
+#define MI_CONV 0.5592  // conversion factor for km to mi
+#define INT_PLACES 2    // number of integer places for float display
+#define DEC_PLACES 3    // number of decimal places for float display
+
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -14,11 +21,6 @@
 #include "OrbitOLED/OrbitOLEDInterface.h"
 #include "readAcc.h"
 #include "floatToString.h"
-
-#define GRAV_CONV 256   // conversion factor for raw accelerometer data to gravities - change if changing accelerometer settings
-#define MPS_CONV 26     // conversion factor for raw accelerometer data to meters per second per second - change if changing accelerometer settings
-#define INT_PLACES 2    // number of integer places for float display
-#define DEC_PLACES 2    // number of decimal places for float display
 
 // Idea for this part came from tutors, implementation from Zach Preston;
 // include for the OrbitOledSetCharUpdate() function
@@ -36,64 +38,107 @@ void initDisplay(void)
 }
 
 // Form strings for RAW display mode
-void displayRAW(vector3_t offset_mean)
+void displayRAW(uint32_t steps)
 {
-    OLEDStringDraw ("Accelerometer", 0, 0);
-    displayUpdate("Accl", "X", offset_mean.x, "raw", 1);
-    displayUpdate("Accl", "Y", offset_mean.y, "raw", 2);
-    displayUpdate("Accl", "Z", offset_mean.z, "raw", 3);
+    OrbitOledClearBuffer();
+    OLEDStringDraw ("Steps:", 0, 0);
+    displayUpdate("   ","", steps, "", 2);
+    redrawDisplay();
 }
 
 // Form strings for GRAVITY display mode
-void displayGRAV(vector3_t offset_mean)
+void displayKMeters(uint32_t steps)
 {
     // Declare strings for float-to-string conversion
-    static char acc_float_x[INT_PLACES+DEC_PLACES+1];
-    static char acc_float_y[INT_PLACES+DEC_PLACES+1];
-    static char acc_float_z[INT_PLACES+DEC_PLACES+1];
-    vector3_float acceleration_floats;
+    static char dist_float_km[INT_PLACES+DEC_PLACES+1];
 
-    // Convert raw values to units of gravity, as floats
-    acceleration_floats.x = (float) offset_mean.x / GRAV_CONV;
-    acceleration_floats.y = (float) offset_mean.y / GRAV_CONV;
-    acceleration_floats.z = (float) offset_mean.z / GRAV_CONV;
+    // Convert raw steps to units of km, as floats
+    float dist_float = ((float) steps * KM_CONV) / 1000;
 
     // Convert float values to strings printable by usnprintf()
-    ftos(acceleration_floats.x, acc_float_x, INT_PLACES, DEC_PLACES);
-    ftos(acceleration_floats.y, acc_float_y, INT_PLACES, DEC_PLACES);
-    ftos(acceleration_floats.z, acc_float_z, INT_PLACES, DEC_PLACES);
+    ftos(dist_float, dist_float_km, INT_PLACES, DEC_PLACES);
 
     // Update the display
-    OLEDStringDraw ("Accelerometer", 0, 0);
-    displayUpdateFloatStr("", "X", acc_float_x, "G", 1);
-    displayUpdateFloatStr("", "Y", acc_float_y, "G", 2);
-    displayUpdateFloatStr("", "Z", acc_float_z, "G", 3);
+    OrbitOledClearBuffer();
+    OLEDStringDraw ("Distance:", 0, 0);
+    displayUpdateFloatStr("", "", dist_float_km, "km", 2);
+    redrawDisplay();
 }
 // Form strings for MSS display mode
-void displayMSS(vector3_t offset_mean)
+void displayMiles(uint32_t steps)
 {
     // Declare strings for float-to-string conversion
-    static char acc_float_x[INT_PLACES + DEC_PLACES + 1];
-    static char acc_float_y[INT_PLACES + DEC_PLACES + 1];
-    static char acc_float_z[INT_PLACES + DEC_PLACES + 1];
-    vector3_float acceleration_floats;
+    static char dist_float_mi[INT_PLACES + DEC_PLACES + 1];
 
-    // Convert raw values to units of meters per second, as floats
-    acceleration_floats.x = (float) offset_mean.x / MPS_CONV;
-    acceleration_floats.y = (float) offset_mean.y / MPS_CONV;
-    acceleration_floats.z = (float) offset_mean.z / MPS_CONV;
+
+    // Convert raw steps to units of miles, as floats
+    float dist_float = (((float) steps * KM_CONV) * MI_CONV) / 1000;
 
     // Convert float values to strings printable by usnprintf()
-    ftos(acceleration_floats.x, acc_float_x, INT_PLACES, DEC_PLACES);
-    ftos(acceleration_floats.y, acc_float_y, INT_PLACES, DEC_PLACES);
-    ftos(acceleration_floats.z, acc_float_z, INT_PLACES, DEC_PLACES);
+    ftos(dist_float, dist_float_mi, INT_PLACES, DEC_PLACES);
 
     // Update the display
-    OLEDStringDraw ("Accelerometer", 0, 0);
-    displayUpdateFloatStr("", "X", acc_float_x, "m/s/s", 1);
-    displayUpdateFloatStr("", "Y", acc_float_y, "m/s/s", 2);
-    displayUpdateFloatStr("", "Z", acc_float_z, "m/s/s", 3);
+    OrbitOledClearBuffer();
+    OLEDStringDraw ("Distance:", 0, 0);
+    displayUpdateFloatStr("", "", dist_float_mi, "mi", 2);
+    redrawDisplay();
 }
+
+
+//// Form strings for GRAVITY display mode
+//void displayGRAV(vector3_t offset_mean)
+//{
+//    // Declare strings for float-to-string conversion
+//    static char acc_float_x[INT_PLACES+DEC_PLACES+1];
+//    static char acc_float_y[INT_PLACES+DEC_PLACES+1];
+//    static char acc_float_z[INT_PLACES+DEC_PLACES+1];
+//    vector3_float acceleration_floats;
+//
+//    // Convert raw values to units of gravity, as floats
+//    acceleration_floats.x = (float) offset_mean.x / GRAV_CONV;
+//    acceleration_floats.y = (float) offset_mean.y / GRAV_CONV;
+//    acceleration_floats.z = (float) offset_mean.z / GRAV_CONV;
+//
+//    // Convert float values to strings printable by usnprintf()
+//    ftos(acceleration_floats.x, acc_float_x, INT_PLACES, DEC_PLACES);
+//    ftos(acceleration_floats.y, acc_float_y, INT_PLACES, DEC_PLACES);
+//    ftos(acceleration_floats.z, acc_float_z, INT_PLACES, DEC_PLACES);
+//
+//    // Update the display
+//    OrbitOledClearBuffer();
+//    OLEDStringDraw ("Distance", 0, 0);
+//    displayUpdateFloatStr("", "X", acc_float_x, "km", 1);
+//    displayUpdateFloatStr("", "Y", acc_float_y, "km", 2);
+//    displayUpdateFloatStr("", "Z", acc_float_z, "km", 3);
+//    redrawDisplay();
+//}
+//// Form strings for MSS display mode
+//void displayMSS(vector3_t offset_mean)
+//{
+//    // Declare strings for float-to-string conversion
+//    static char acc_float_x[INT_PLACES + DEC_PLACES + 1];
+//    static char acc_float_y[INT_PLACES + DEC_PLACES + 1];
+//    static char acc_float_z[INT_PLACES + DEC_PLACES + 1];
+//    vector3_float acceleration_floats;
+//
+//    // Convert raw values to units of meters per second, as floats
+//    acceleration_floats.x = (float) offset_mean.x / MPS_CONV;
+//    acceleration_floats.y = (float) offset_mean.y / MPS_CONV;
+//    acceleration_floats.z = (float) offset_mean.z / MPS_CONV;
+//
+//    // Convert float values to strings printable by usnprintf()
+//    ftos(acceleration_floats.x, acc_float_x, INT_PLACES, DEC_PLACES);
+//    ftos(acceleration_floats.y, acc_float_y, INT_PLACES, DEC_PLACES);
+//    ftos(acceleration_floats.z, acc_float_z, INT_PLACES, DEC_PLACES);
+//
+//    // Update the display
+//    OrbitOledClearBuffer();
+//    OLEDStringDraw ("Distance", 0, 0);
+//    displayUpdateFloatStr("", "X", acc_float_x, "mi", 1);
+//    displayUpdateFloatStr("", "Y", acc_float_y, "mi", 2);
+//    displayUpdateFloatStr("", "Z", acc_float_z, "mi", 3);
+//    redrawDisplay();
+//}
 
 //*****************************************************************************
 // Function to display a changing message on the display.
@@ -109,7 +154,6 @@ void displayUpdate (char *str1, char *str2, int16_t num, char *str3, uint8_t cha
     usnprintf(text_buffer, sizeof(text_buffer), "%s %s %3d %s", str1, str2, num, str3);
     // Update line on display.
     OLEDStringDraw (text_buffer, 0, charLine);
-    redrawDisplay();
 }
 
 //*****************************************************************************
@@ -127,11 +171,10 @@ void displayUpdateFloatStr (char *str1, char *str2, char *float_string, char *st
     usnprintf(text_buffer, sizeof(text_buffer), "%s %s %s %s", str1, str2, float_string, str3);
     // Update line on display.
     OLEDStringDraw (text_buffer, 0, charLine);
-    redrawDisplay();
 }
 
 // Order the refresh of the OLED display - call after each page update.
-// only required if OrbitOledSetCharUpdate(0) set on init.
+// only required if OrbitOledSetCharUpdate(0) set on init (which it is)
 void redrawDisplay(void)
 {
     OrbitOledUpdate();

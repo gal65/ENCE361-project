@@ -111,7 +111,7 @@ void initButtons (void)
 
 void UPButIntHandler (void)
 {
-    flagU = 1;
+    flagU = 1;      // maybe add an if-condition that checks the button is still pressed as a rough kind of debounce?
     GPIOIntClear(UP_BUT_PORT_BASE, UP_BUT_PIN);
 }
 

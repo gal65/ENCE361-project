@@ -30,6 +30,7 @@
 #include "floatToString.h" //
 #include "display.h" //
 #include "circBufT.h" //
+#include "stepCounter.h" //
 
 // Define Variables
 #define SAMPLE_RATE_HZ 100 // rate for sampling accelerometers
@@ -53,20 +54,19 @@ int main(void)
     FPUEnable(); // enable FPU co-processor
     IntMasterEnable(); // Enable interrupts to the processor.
 
-    // Declaring vector struct variables
+    // Declaring accel measurement variables and vars used upon startup for the initialisation calibration
     vector3_t mean_acc;
     vector3_t offset;
     vector3_t offset_mean_acc;
-
-    vector3_t steps; //
-    steps.x = 0; //
-    steps.y = 0; //
-    steps.z = 0; //
+    uint32_t accel_norm;
+    uint32_t steps; //
+    uint8_t acc_buf_filled = 0;
+    uint16_t init_cycles = 0;
 
     // declaring int variables and initialising values to 0
-    int total_steps = 0;
-    int less_than = 0;
-    int prev_less_than = 0;
+    uint32_t total_steps = 0;
+    uint32_t less_than = 0;
+    uint32_t prev_less_than = 0;
 
     // Initialising offsets to 0
     offset.x = 0;
@@ -77,32 +77,21 @@ int main(void)
 //    uint8_t unitMode = UNITS_RAW;
     vector_inputs inputFlags = {.dispMode=RAW, .D=0, .L=0, .R=0};
 
-    // Variables used upon startup for the initialisation calibration
-    int init_cycles = 0;
-    int acc_buf_filled = 0;
-
     while (1) // TODO: On SYSCLK interrupt raising main_flag, run this while loop.
     {
-        // Loop for accelerometer (TODO; turn this whole loop into a task triggered by an interrupt raising a flag)
+        //  (TODO; turn this whole loop into a task triggered by an interrupt raising a flag)
+
         // THIS IS CAUSING THE LONG PRESS BUG, when combined with SysCtlDelay elsewhere (ie in buttons4.c)
         // THIS IS BAD METHOD - need to use interrupts properly.
-        SysCtlDelay(SysCtlClockGet() / 64);    // (not) approx 2 Hz
+        SysCtlDelay(SysCtlClockGet() / 128);    // (not) approx 2 Hz
 
         // Check buttons and update mode if required
-        // TODO: interrupts for buttons
         inputFlags = readButtonFlags(inputFlags);
 //        unitMode = butFlags.dispMode;
 
-
-
-
         // Pulls the data from the accelerometer and then collects it in a circular buffer
-        // The mean is then calculated and stored in a separate variable
+        // The mean is then calculated and stored in a separate 3D vector variable
         mean_acc = getAcclData();
-        // TODO; trigger a step, increase step count
-
-        // calculate the norm of the x, y, and z acceleration readings in G's (could maybe make it a one argument function taking a vector3_t)
-        int16_t accel_norm = calculate_norm(mean_acc); //
 
         // CALIBRATION OF ACCELEROMETERS
         // Upon initialization, the device waits until the buffers have been
@@ -117,6 +106,7 @@ int main(void)
             }
         }
 
+
         // If recalibrate button pressed, set current mean as the new offset
         if (inputFlags.D == 1)
         {
@@ -124,19 +114,21 @@ int main(void)
             inputFlags.D = 0;
         }
 
-        // Calculates the current value to display by subtracting the current
+        // Recalculates the current value by subtracting the current
         // mean acceleration by the last saved offset
         offset_mean_acc.x = mean_acc.x - offset.x;
         offset_mean_acc.y = mean_acc.y - offset.y;
         offset_mean_acc.z = mean_acc.z - offset.z;
 
-        // flag is set based on norm
+        // Calculate the norm of the x, y, and z acceleration readings in G's (could maybe make it a one argument function taking a vector3_t)
+        accel_norm = calculate_norm(mean_acc); //
+        // Flag is set based on norm
         less_than = less_than_flag(accel_norm);
-        // will increment step count based on the 2 flags
+        // Increment step count based on the 2 flags
         total_steps = step_increment(total_steps, less_than, prev_less_than);
-        // update previous flag
+        // Update previous flag
         prev_less_than = less_than;
-        steps.x = total_steps; // won't need this when gui is done
+        steps = total_steps; // won't need this when gui is done
 
         // Select display logic based on mode
         switch (inputFlags.dispMode)
@@ -146,11 +138,11 @@ int main(void)
             break;
 
         case 1: // Gravities mode
-            displayGRAV(offset_mean_acc);
+            displayKMeters(steps);
             break;
 
         case 2: // MPS mode
-            displayMSS(offset_mean_acc);
+            displayMiles(steps);
             break;
         }
     }
