@@ -51,6 +51,7 @@ int main(void)
     initButtons();
     initAccl();
 
+
     FPUEnable(); // enable FPU co-processor
     IntMasterEnable(); // Enable interrupts to the processor.
 

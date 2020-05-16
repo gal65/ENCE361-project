@@ -30,12 +30,14 @@
 #include <OrbitOLED/lib_OrbitOled/OrbitOled.h>
 //#include "../../OrbitOLED/lib_OrbitOled/OrbitOled.h"
 
+
 // Initialise the OLED display - call on startup
 void initDisplay(void)
 {
     OLEDInitialise ();
     OrbitOledSetCharUpdate(0);
 }
+
 
 // Form strings for RAW display mode
 void displayRAW(uint32_t steps)
@@ -45,6 +47,7 @@ void displayRAW(uint32_t steps)
     displayUpdate("   ","", steps, "", 2);
     redrawDisplay();
 }
+
 
 // Form strings for GRAVITY display mode
 void displayKMeters(uint32_t steps)
@@ -64,6 +67,8 @@ void displayKMeters(uint32_t steps)
     displayUpdateFloatStr("", "", dist_float_km, "km", 2);
     redrawDisplay();
 }
+
+
 // Form strings for MSS display mode
 void displayMiles(uint32_t steps)
 {

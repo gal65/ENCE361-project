@@ -29,5 +29,4 @@ void displayUpdateFloatStr (char *str1, char *str2, char *float_string, char *st
 
 void redrawDisplay(void);
 
-
 #endif /* DISPLAY_H_ */
