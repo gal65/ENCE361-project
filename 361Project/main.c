@@ -62,7 +62,7 @@ int main(void)
     // Declaring accel measurement variables and vars used upon startup for the initialisation calibration
     vector3_t mean_acc;
     vector3_t offset;
-//    vector3_t offset_mean_acc; Not used anymore
+    vector3_t offset_mean_acc;
     uint32_t accel_norm;
     uint32_t steps; //
     uint8_t acc_buf_filled = 0;

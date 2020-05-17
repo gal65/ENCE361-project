@@ -25,8 +25,8 @@ static bool but_normal[NUM_BUTS];   // Corresponds to the electrical state
 
 volatile uint32_t flagU;
 volatile uint32_t flagD;
-static uint32_t flagL = 0;
-static uint32_t flagR = 0;
+volatile uint32_t flagL;
+volatile uint32_t flagR;
 static uint8_t cycles = 0; //checks the cycles for the button held down
 
 // *******************************************************
