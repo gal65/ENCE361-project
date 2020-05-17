@@ -36,8 +36,8 @@
 // Define Constants
 #define SYS_DELAY_DIV 128 // divisor for main loop timing
 #define SAMPLE_RATE_HZ 100 // rate for sampling accelerometers
-#define HOLD_TIME 50 // amount of cycles the button needs to be held down to confirm
-#define DB_TIME 4 // number of cycles to debounce a button
+#define LONG_PRESS 50 // amount of cycles the button needs to be held down to confirm
+#define SHORT_PRESS 4 // number of cycles to debounce a button
 #define STEP_INCR 100 // Increment steps in test mode
 #define STEP_DECR 500 // Decrement steps in test mode
 
@@ -79,21 +79,21 @@ int main(void)
 //    uint8_t switchState = 0;
     uint8_t held = 0;
 
+
     while (1) // TODO: On SYSCLK interrupt raising main_flag, run this while loop.
     {
         // THIS IS CAUSING THE LONG PRESS BUG, when combined with SysCtlDelay elsewhere (ie in buttons4.c)
-        // THIS IS A BAD METHOD - need to use SysTick interrupt.
+        // THIS IS A BAD METHOD - TODO; need to use SysTick interrupt.
         SysCtlDelay(SysCtlClockGet() / SYS_DELAY_DIV);    // (not) approx 2 Hz
 
+        mean_acc = getAcclData();
         // Check buttons and switches and update mode if required
         inputFlags = readButtonFlags(inputFlags);
         inputMode = getSwitchPos();
 
-//        unitMode = butFlags.dispMode;
-
         // Pulls the data from the accelerometer and then collects it in a circular buffer
         // The mean is then calculated and stored in a separate 3D vector variable
-        mean_acc = getAcclData();
+
 
         // CALIBRATION OF ACCELEROMETERS // Unnecessary and makes for bad RMS if offset large
 //        vector3_t offset;
@@ -129,13 +129,13 @@ int main(void)
         prev_less_than = less_than;
 
 
-        // Where all the polls are handled
-        // If held down for an amount of time, the steps reset
+
+        // Input flags are handled here
         if (inputFlags.D == 1)
         {
             if (inputMode == NORM)
             {
-                held = detect_hold(DOWN, HOLD_TIME);
+                held = detect_hold(DOWN, LONG_PRESS); // If held down for an amount of time, the steps reset
                 if (held == 1)
                 {
                     total_steps = 0;
@@ -148,7 +148,7 @@ int main(void)
             }
             else
             {
-                held = detect_hold(DOWN, DB_TIME);
+                held = detect_hold(DOWN, SHORT_PRESS); // debounce using long press method
                 if (held == 1)
                 {
                     if (total_steps >= STEP_DECR) {
@@ -163,13 +163,12 @@ int main(void)
                 {
                     inputFlags.D = 0;
                 }
-
             }
         }
         //swaps units in distance mode on up button press only if the distance is displayed
         if (inputFlags.U == 1)
         {
-            held = detect_hold(UP, DB_TIME);
+            held = detect_hold(UP, SHORT_PRESS);
             if (held == 1)
             {
                 if (inputMode == NORM)
@@ -191,7 +190,7 @@ int main(void)
         //swaps from step and distance modes on left and right button presses
         if (inputFlags.L == 1)
         {
-            held = detect_hold(LEFT, DB_TIME);
+            held = detect_hold(LEFT, SHORT_PRESS);
             if (held == 1)
             {
                 dispMode = swap_disp(dispMode, 0);
@@ -205,7 +204,7 @@ int main(void)
 
         if (inputFlags.R == 1)
         {
-            held = detect_hold(RIGHT, DB_TIME);
+            held = detect_hold(RIGHT, SHORT_PRESS);
             if (held == 1)
             {
                 dispMode = swap_disp(dispMode, 0);
@@ -216,6 +215,9 @@ int main(void)
                 inputFlags.R = 0;
             }
         }
+
+
+
 
         // Select display logic based on mode
         switch (dispMode)
