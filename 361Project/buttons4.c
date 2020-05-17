@@ -233,7 +233,8 @@ int detect_hold(uint8_t butName, int lim)
     {
         cycles++;
     }
-    else if (butState == RELEASED){ //Condition if button released too early
+    else if (butState == RELEASED)
+    { //Condition if button released too early
         fin_flag = 2;
     }
     else
@@ -249,7 +250,18 @@ int detect_hold(uint8_t butName, int lim)
     return fin_flag;
 }
 
-
+uint8_t swap_units(uint8_t unitMode)
+{
+    if (unitMode == KM)
+    {
+        unitMode = MI;
+    }
+    else
+    {
+        unitMode = KM;
+    }
+    return unitMode;
+}
 
 /*
  uint8_t butState;

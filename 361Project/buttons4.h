@@ -32,6 +32,7 @@
 //*****************************************************************************
 enum butNames {UP = 0, DOWN, LEFT, RIGHT, NUM_BUTS};
 enum butStates {RELEASED = 0, PUSHED, NO_CHANGE};
+enum inputMode {NORM = 0, TEST};
 
 // UP button
 #define UP_BUT_PERIPH  SYSCTL_PERIPH_GPIOE
@@ -101,5 +102,7 @@ void updateButtons (void);
 uint8_t checkButton (uint8_t butName);
 
 int detect_hold(uint8_t butName,int lim);
+
+uint8_t swap_units(uint8_t unitMode);
 
 #endif /*BUTTONS_H_*/

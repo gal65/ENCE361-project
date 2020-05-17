@@ -37,6 +37,8 @@
 #define SAMPLE_RATE_HZ 100 // rate for sampling accelerometers
 #define HOLD_TIME 50 // amount of cycles the button needs to be held down to confirm
 #define DB_TIME 4 // number of cycles to debounce a button
+#define STEP_INCR 100 // Increment steps in test mode
+#define STEP_DECR 500 // Decrement steps in test mode
 
 // Begin main loop
 int main(void)
@@ -60,7 +62,6 @@ int main(void)
     // Declaring accel measurement variables and vars used upon startup for the initialisation calibration
     vector3_t mean_acc;
     uint32_t accel_norm;
-    uint32_t steps; //
 
     // declaring int variables and initialising values to 0
     uint32_t total_steps = 0;
@@ -72,6 +73,7 @@ int main(void)
     vector_inputs inputFlags = { .D = 0, .L = 0, .R = 0, .U = 0 };
     uint8_t dispMode = STEP;
     uint8_t unitMode = KM;
+    uint8_t inputMode = NORM;
 
     uint8_t held = 0;
 
@@ -120,43 +122,54 @@ int main(void)
         total_steps = step_increment(total_steps, less_than, prev_less_than);
         // Update previous flag
         prev_less_than = less_than;
-        steps = total_steps; // won't need this when gui is done
-
-        // Select display logic based on mode
-        switch (dispMode)
-        {
-        case STEP: // Raw mode - MAGIC NUMBER? - Why does switch() not like using enumerated or declared constants?
-            displayRAW(steps); //changed this to display steps to know it works
-            break;
-
-        case DIST: // Gravities mode
-            displayDist(steps, unitMode);
-            break;
-        }
 
         // Where all the polls are handled
         // If held down for an amount of time, the steps reset
         if (inputFlags.D == 1)
         {
-            held = detect_hold(DOWN, HOLD_TIME);
-            if (held == 1)
+            if (inputMode == NORM)
             {
-                total_steps = 0;
-                inputFlags.D = 0;
-                // offset = mean_acc; we don't need to offset anymore
+                held = detect_hold(DOWN, HOLD_TIME);
+                if (held == 1)
+                {
+                    total_steps = 0;
+                    inputFlags.D = 0;
+                }
+                else if (held == 2) // not held long enough
+                {
+                    inputFlags.D = 0;
+                }
             }
-            else if (held == 2) //not held long enough
+            else
             {
-                inputFlags.D = 0;
+                held = detect_hold(DOWN, DB_TIME);
+                if (held == 1)
+                {
+
+                    total_steps = total_steps - STEP_DECR;
+                    inputFlags.D = 0;
+                }
+                else if (held == 2) //not held long enough
+                {
+                    inputFlags.D = 0;
+                }
+
             }
         }
         //swaps units in distance mode on up button press only if the distance is displayed
         if (inputFlags.U == 1)
-        { //Magic number change later
+        {
             held = detect_hold(UP, DB_TIME);
             if (held == 1)
             {
-                dispMode = swap_disp(dispMode, 1);
+                if (inputMode == NORM)
+                {
+                    unitMode = swap_units(unitMode);
+                }
+                else
+                {
+                    total_steps = total_steps + STEP_INCR;
+                }
                 inputFlags.U = 0;
             }
             else if (held == 2) //not held long enough
@@ -194,5 +207,16 @@ int main(void)
             }
         }
 
+        // Select display logic based on mode
+        switch (dispMode)
+        {
+        case STEP: // Raw mode - MAGIC NUMBER? - Why does switch() not like using enumerated or declared constants?
+            displayRAW(total_steps); //changed this to display steps to know it works
+            break;
+
+        case DIST: // Gravities mode
+            displayDist(total_steps, unitMode);
+            break;
+        }
     }
 }
