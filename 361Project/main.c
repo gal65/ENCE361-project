@@ -70,14 +70,12 @@ int main(void)
     // Enable changing the displayed units
 //    uint8_t unitMode = UNITS_RAW;
     vector_inputs inputFlags = { .D = 0, .L = 0, .R = 0, .U = 0 };
-    uint8_t dispMode = RAW;
+    uint8_t dispMode = STEP;
 
     uint8_t held = 0;
 
     while (1) // TODO: On SYSCLK interrupt raising main_flag, run this while loop.
     {
-        //  (TODO; turn this whole loop into a task triggered by an interrupt raising a flag)
-
         // THIS IS CAUSING THE LONG PRESS BUG, when combined with SysCtlDelay elsewhere (ie in buttons4.c)
         // THIS IS BAD METHOD - need to use interrupts properly.
         SysCtlDelay(SysCtlClockGet() / SYS_DELAY_DIV);    // (not) approx 2 Hz
@@ -126,16 +124,12 @@ int main(void)
         // Select display logic based on mode
         switch (dispMode)
         {
-        case RAW: // Raw mode - MAGIC NUMBER? - Why does switch() not like using enumerated or declared constants?
+        case STEP: // Raw mode - MAGIC NUMBER? - Why does switch() not like using enumerated or declared constants?
             displayRAW(steps); //changed this to display steps to know it works
             break;
 
-        case GRAV: // Gravities mode
+        case DIST: // Gravities mode
             displayKMeters(steps);
-            break;
-
-        case MPS: // MPS mode
-            displayMiles(steps);
             break;
         }
 
@@ -168,10 +162,9 @@ int main(void)
             held = detect_hold(LEFT, DB_TIME);
             if (held == 1)
             {
-                dispMode = swap_disp(dispMode, 1);
+                dispMode = swap_disp(dispMode, 0);
                 inputFlags.L = 0;
             }
-            dispMode = swap_disp(dispMode, 0); //Magic number change later
         }
 
         if (inputFlags.R == 1)
@@ -179,10 +172,10 @@ int main(void)
             held = detect_hold(RIGHT, DB_TIME);
             if (held == 1)
             {
-                dispMode = swap_disp(dispMode, 1);
+                dispMode = swap_disp(dispMode, 0);
                 inputFlags.R = 0;
             }
-            dispMode = swap_disp(dispMode, 0); //Magic number change later
         }
+
     }
 }

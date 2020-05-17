@@ -54,18 +54,17 @@ void displayKMeters(uint32_t steps)
 {
     // Declare strings for float-to-string conversion
     static char dist_float_km[INT_PLACES+DEC_PLACES+1];
-
+    IntMasterDisable();
     // Convert raw steps to units of km, as floats
     float dist_float = ((float) steps * KM_CONV) / 1000;
-
     // Convert float values to strings printable by usnprintf()
     ftos(dist_float, dist_float_km, INT_PLACES, DEC_PLACES);
-
     // Update the display
     OrbitOledClearBuffer();
     OLEDStringDraw ("Distance:", 0, 0);
     displayUpdateFloatStr("", "", dist_float_km, "km", 2);
     redrawDisplay();
+    IntMasterEnable();
 }
 
 
@@ -75,18 +74,17 @@ void displayMiles(uint32_t steps)
     // Declare strings for float-to-string conversion
     static char dist_float_mi[INT_PLACES + DEC_PLACES + 1];
 
-
+    IntMasterDisable(); // dealing with floats, disable ints for speed
     // Convert raw steps to units of miles, as floats
     float dist_float = (((float) steps * KM_CONV) * MI_CONV) / 1000;
-
     // Convert float values to strings printable by usnprintf()
     ftos(dist_float, dist_float_mi, INT_PLACES, DEC_PLACES);
-
     // Update the display
     OrbitOledClearBuffer();
     OLEDStringDraw ("Distance:", 0, 0);
     displayUpdateFloatStr("", "", dist_float_mi, "mi", 2);
     redrawDisplay();
+    IntMasterEnable();
 }
 
 

@@ -31,7 +31,9 @@
 //*****************************************************************************
 enum butNames {UP = 0, DOWN, LEFT, RIGHT, NUM_BUTS};
 enum butStates {RELEASED = 0, PUSHED, NO_CHANGE};
-enum dispModes {RAW = 0, GRAV, MPS};
+enum dispModes {STEP = 0, DIST};
+enum unitModes {KM = 0, MI};
+
 // UP button
 #define UP_BUT_PERIPH  SYSCTL_PERIPH_GPIOE
 #define UP_BUT_PORT_BASE  GPIO_PORTE_BASE

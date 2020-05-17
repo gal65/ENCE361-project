@@ -98,12 +98,14 @@ void initButtons(void)
 
 void UPButIntHandler(void)
 {
+    GPIOIntDisable(UP_BUT_PORT_BASE, UP_BUT_PIN);
     flagU = 1;
     GPIOIntClear(UP_BUT_PORT_BASE, UP_BUT_PIN);
 }
 
 void DOWNButIntHandler(void)
 {
+    GPIOIntDisable(DOWN_BUT_PORT_BASE, DOWN_BUT_PIN);
     flagD = 1;
     GPIOIntClear(DOWN_BUT_PORT_BASE, DOWN_BUT_PIN);
 }
@@ -111,6 +113,7 @@ void DOWNButIntHandler(void)
 // Left and Right button interrupts are on the same port so they occur at the same time
 void LEFTButIntHandler(void)
 {
+    GPIOIntDisable(LEFT_BUT_PORT_BASE, LEFT_BUT_PIN);
     flagL = 1;
     GPIOIntClear(LEFT_BUT_PORT_BASE, LEFT_BUT_PIN);
     GPIOIntClear(RIGHT_BUT_PORT_BASE, RIGHT_BUT_PIN);
@@ -118,6 +121,7 @@ void LEFTButIntHandler(void)
 
 void RIGHTButIntHandler(void)
 {
+    GPIOIntDisable(RIGHT_BUT_PORT_BASE, RIGHT_BUT_PIN);
     flagR = 1;
     GPIOIntClear(RIGHT_BUT_PORT_BASE, RIGHT_BUT_PIN);
     GPIOIntClear(LEFT_BUT_PORT_BASE, LEFT_BUT_PIN);
@@ -189,24 +193,28 @@ vector_inputs readButtonFlags(vector_inputs inputFlags)
     {
         inputFlags.U = 1;
         flagU = 0;
+        GPIOIntEnable(UP_BUT_PORT_BASE, UP_BUT_PIN);
     }
 
     if (flagD == 1)
     {
         inputFlags.D = 1;
         flagD = 0;
+        GPIOIntEnable(DOWN_BUT_PORT_BASE, DOWN_BUT_PIN);
     }
 
     if (flagL == 1)
     {
         inputFlags.L = 1;
         flagL = 0;
+        GPIOIntEnable(LEFT_BUT_PORT_BASE, LEFT_BUT_PIN);
     }
 
     if (flagR == 1)
     {
         inputFlags.R = 1;
         flagR = 0;
+        GPIOIntEnable(RIGHT_BUT_PORT_BASE, RIGHT_BUT_PIN);
     }
 
     return inputFlags;
@@ -245,24 +253,24 @@ uint8_t swap_disp(uint8_t dispmode, uint8_t dir)
     switch (dir)
     {
     case 0: // Swap between distance and steps
-        if (dispmode == RAW)
+        if (dispmode == STEP)
         {
-            next_disp = MPS;     // edit here for doing things with buttons
+            next_disp = DIST;     // edit here for doing things with buttons
         }
         else
         {
-            next_disp = RAW;
+            next_disp = STEP;
         }
         break;
 
     case 1: // Swap between units (only works if it is displaying distance already)
-        if (dispmode == MPS)
+        if (dispmode == KM)
         {
-            next_disp = GRAV;     // edit here for doing things with buttons
+            next_disp = MI;     // edit here for doing things with buttons
         }
-        else if (dispmode == GRAV)
+        else if (dispmode == MI)
         {
-            next_disp = MPS;
+            next_disp = KM;
         }
         break;
     }
