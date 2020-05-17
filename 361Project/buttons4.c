@@ -98,33 +98,34 @@ void initButtons(void)
 
 void UPButIntHandler(void)
 {
-    GPIOIntDisable(UP_BUT_PORT_BASE, UP_BUT_PIN);
+
     flagU = 1;
     GPIOIntClear(UP_BUT_PORT_BASE, UP_BUT_PIN);
+    GPIOIntDisable(UP_BUT_PORT_BASE, UP_BUT_PIN);
 }
 
 void DOWNButIntHandler(void)
 {
-    GPIOIntDisable(DOWN_BUT_PORT_BASE, DOWN_BUT_PIN);
     flagD = 1;
     GPIOIntClear(DOWN_BUT_PORT_BASE, DOWN_BUT_PIN);
+    GPIOIntDisable(DOWN_BUT_PORT_BASE, DOWN_BUT_PIN);
 }
 
 // Left and Right button interrupts are on the same port so they occur at the same time
 void LEFTButIntHandler(void)
 {
-    GPIOIntDisable(LEFT_BUT_PORT_BASE, LEFT_BUT_PIN);
     flagL = 1;
     GPIOIntClear(LEFT_BUT_PORT_BASE, LEFT_BUT_PIN);
     GPIOIntClear(RIGHT_BUT_PORT_BASE, RIGHT_BUT_PIN);
+    GPIOIntDisable(LEFT_BUT_PORT_BASE, LEFT_BUT_PIN);
 }
 
 void RIGHTButIntHandler(void)
 {
-    GPIOIntDisable(RIGHT_BUT_PORT_BASE, RIGHT_BUT_PIN);
     flagR = 1;
     GPIOIntClear(RIGHT_BUT_PORT_BASE, RIGHT_BUT_PIN);
     GPIOIntClear(LEFT_BUT_PORT_BASE, LEFT_BUT_PIN);
+    GPIOIntDisable(RIGHT_BUT_PORT_BASE, RIGHT_BUT_PIN);
 }
 
 // *******************************************************
