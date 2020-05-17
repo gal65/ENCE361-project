@@ -12,7 +12,7 @@
 
 #include <stdint.h>
 
-#define BUF_SIZE 10 // size of buffer for reading accelerometer
+#define BUF_SIZE 5 // size of buffer for reading accelerometer
 
 // *******************************************************
 // Buffer structure
