@@ -31,12 +31,14 @@
 #include "display.h" //
 #include "circBufT.h" //
 #include "stepCounter.h" //
+#include "switch.h"
 
 // Define Variables
 #define SYS_DELAY_DIV 128 // divisor for main loop timing
 #define SAMPLE_RATE_HZ 100 // rate for sampling accelerometers
 #define HOLD_TIME 50 // amount of cycles the button needs to be held down to confirm
 #define DB_TIME 4 // number of cycles to debounce a button
+
 
 // Begin main loop
 int main(void)
@@ -53,6 +55,7 @@ int main(void)
     initCircBuf(&inBuffer_z, BUF_SIZE);
     initButtons();
     initAccl();
+    initSwitch();
 
     FPUEnable(); // enable FPU co-processor
     IntMasterEnable(); // Enable interrupts to the processor.
@@ -73,6 +76,7 @@ int main(void)
     uint8_t dispMode = STEP;
     uint8_t unitMode = KM;
 
+    uint8_t switchState = 0;
     uint8_t held = 0;
 
     while (1) // TODO: On SYSCLK interrupt raising main_flag, run this while loop.
@@ -81,8 +85,10 @@ int main(void)
         // THIS IS BAD METHOD - need to use interrupts properly.
         SysCtlDelay(SysCtlClockGet() / SYS_DELAY_DIV);    // (not) approx 2 Hz
 
-        // Check buttons and update mode if required
+        // Check buttons and switches and update mode if required
         inputFlags = readButtonFlags(inputFlags);
+        switchState = getSwitchPos();
+
 //        unitMode = butFlags.dispMode;
 
         // Pulls the data from the accelerometer and then collects it in a circular buffer
@@ -134,65 +140,80 @@ int main(void)
             break;
         }
 
+
+
         // Where all the polls are handled
         // If held down for an amount of time, the steps reset
-        if (inputFlags.D == 1)
+        switch(switchState)
         {
-            held = detect_hold(DOWN, HOLD_TIME);
-            if (held == 1)
-            {
-                total_steps = 0;
-                inputFlags.D = 0;
-                // offset = mean_acc; we don't need to offset anymore
-            }
-            else if (held == 2) //not held long enough
-            {
-                inputFlags.D = 0;
-            }
-        }
-        //swaps units in distance mode on up button press only if the distance is displayed
-        if (inputFlags.U == 1)
-        { //Magic number change later
-            held = detect_hold(UP, DB_TIME);
-            if (held == 1)
-            {
-                dispMode = swap_disp(dispMode, 1);
-                inputFlags.U = 0;
-            }
-            else if (held == 2) //not held long enough
-            {
-                inputFlags.U = 0;
-            }
-        }
+        //Switch is held off
+        case 0:
+            if (inputFlags.D == 1)
+           {
+               held = detect_hold(DOWN, HOLD_TIME);
+               if (held == 1)
+               {
+                   total_steps = 0;
+                   inputFlags.D = 0;
+                   // offset = mean_acc; we don't need to offset anymore
+               }
+               else if (held == 2) //not held long enough
+               {
+                   inputFlags.D = 0;
+               }
+           }
+           //swaps units in distance mode on up button press only if the distance is displayed
+           if (inputFlags.U == 1)
+           { //Magic number change later
+               held = detect_hold(UP, DB_TIME);
+               if (held == 1)
+               {
+                   dispMode = swap_disp(dispMode, 1);
+                   inputFlags.U = 0;
+               }
+               else if (held == 2) //not held long enough
+               {
+                   inputFlags.U = 0;
+               }
+           }
 
-        //swaps from step and distance modes on left and right button presses
-        if (inputFlags.L == 1)
-        {
-            held = detect_hold(LEFT, DB_TIME);
-            if (held == 1)
-            {
-                dispMode = swap_disp(dispMode, 0);
-                inputFlags.L = 0;
-            }
-            else if (held == 2) //not held long enough
-            {
-                inputFlags.L = 0;
-            }
-        }
+           //swaps from step and distance modes on left and right button presses
+           if (inputFlags.L == 1)
+           {
+               held = detect_hold(LEFT, DB_TIME);
+               if (held == 1)
+               {
+                   dispMode = swap_disp(dispMode, 0);
+                   inputFlags.L = 0;
+               }
+               else if (held == 2) //not held long enough
+               {
+                   inputFlags.L = 0;
+               }
+           }
 
-        if (inputFlags.R == 1)
-        {
-            held = detect_hold(RIGHT, DB_TIME);
-            if (held == 1)
-            {
-                dispMode = swap_disp(dispMode, 0);
-                inputFlags.R = 0;
+           if (inputFlags.R == 1)
+           {
+               held = detect_hold(RIGHT, DB_TIME);
+               if (held == 1)
+               {
+                   dispMode = swap_disp(dispMode, 0);
+                   inputFlags.R = 0;
+               }
+               else if (held == 2) //not held long enough
+               {
+                   inputFlags.R = 0;
+               }
+           }
+           break;
+
+        // Switch is left on
+        case(1):
+        total_steps++;
+        break;
             }
-            else if (held == 2) //not held long enough
-            {
-                inputFlags.R = 0;
-            }
-        }
+
+
 
     }
 }
