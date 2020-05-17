@@ -36,7 +36,7 @@
 #define SYS_DELAY_DIV 128 // divisor for main loop timing
 #define SAMPLE_RATE_HZ 100 // rate for sampling accelerometers
 #define HOLD_TIME 50 // amount of cycles the button needs to be held down to confirm
-#define DB_TIME 6 // number of cycles to debounce a button
+#define DB_TIME 4 // number of cycles to debounce a button
 
 // Begin main loop
 int main(void)
@@ -145,6 +145,10 @@ int main(void)
                 inputFlags.D = 0;
                 // offset = mean_acc; we don't need to offset anymore
             }
+            else if (held == 2) //not held long enough
+            {
+                inputFlags.D = 0;
+            }
         }
         //swaps units in distance mode on up button press only if the distance is displayed
         if (inputFlags.U == 1)
@@ -153,6 +157,10 @@ int main(void)
             if (held == 1)
             {
                 dispMode = swap_disp(dispMode, 1);
+                inputFlags.U = 0;
+            }
+            else if (held == 2) //not held long enough
+            {
                 inputFlags.U = 0;
             }
         }
@@ -166,6 +174,10 @@ int main(void)
                 dispMode = swap_disp(dispMode, 0);
                 inputFlags.L = 0;
             }
+            else if (held == 2) //not held long enough
+            {
+                inputFlags.L = 0;
+            }
         }
 
         if (inputFlags.R == 1)
@@ -174,6 +186,10 @@ int main(void)
             if (held == 1)
             {
                 dispMode = swap_disp(dispMode, 0);
+                inputFlags.R = 0;
+            }
+            else if (held == 2) //not held long enough
+            {
                 inputFlags.R = 0;
             }
         }

@@ -233,9 +233,11 @@ int detect_hold(uint8_t butName, int lim)
     {
         cycles++;
     }
+    else if (butState == RELEASED){ //Condition if button released too early
+        fin_flag = 2;
+    }
     else
     {
-        flagD = 0;
         cycles = 0;
     }
     if (cycles == lim)
