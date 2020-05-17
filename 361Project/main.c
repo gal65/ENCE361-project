@@ -36,7 +36,7 @@
 #define SYS_DELAY_DIV 128 // divisor for main loop timing
 #define SAMPLE_RATE_HZ 100 // rate for sampling accelerometers
 #define HOLD_TIME 50 // amount of cycles the button needs to be held down to confirm
-#define DB_TIME 3 // number of cycles to debounce a button
+#define DB_TIME 6 // number of cycles to debounce a button
 
 // Begin main loop
 int main(void)
@@ -168,10 +168,9 @@ int main(void)
             held = detect_hold(LEFT, DB_TIME);
             if (held == 1)
             {
-                dispMode = swap_disp(dispMode, 1);
+                dispMode = swap_disp(dispMode, 0);
                 inputFlags.L = 0;
             }
-            dispMode = swap_disp(dispMode, 0); //Magic number change later
         }
 
         if (inputFlags.R == 1)
@@ -179,10 +178,9 @@ int main(void)
             held = detect_hold(RIGHT, DB_TIME);
             if (held == 1)
             {
-                dispMode = swap_disp(dispMode, 1);
+                dispMode = swap_disp(dispMode, 0);
                 inputFlags.R = 0;
             }
-            dispMode = swap_disp(dispMode, 0); //Magic number change later
         }
     }
 }
