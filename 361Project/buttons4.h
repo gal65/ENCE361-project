@@ -53,7 +53,7 @@ enum dispModes {RAW = 0, GRAV, MPS};
 #define RIGHT_BUT_PIN  GPIO_PIN_0
 #define RIGHT_BUT_NORMAL  true
 
-#define NUM_BUT_POLLS 2 // useful if in interrupt but NOT if polling from loops.
+#define NUM_BUT_POLLS 4 // useful if in interrupt but NOT if polling from loops.
 // Debounce algorithm: A state machine is associated with each button.
 // A state change occurs only after NUM_BUT_POLLS consecutive polls have
 // read the pin in the opposite condition, before the state changes and
@@ -61,7 +61,6 @@ enum dispModes {RAW = 0, GRAV, MPS};
 
 // Structure definition for poll buttons
 typedef struct{
-    uint8_t dispMode;
     int D;
     int L;
     int R;
@@ -92,12 +91,16 @@ void RIGHTButIntHandler (void);
 // Returns a struct containing the mode cycle and state of the flag
 vector_inputs readButtonFlags(vector_inputs butflags);
 
-//void updateButtons (void);
+void updateButtons (void);
 
 // checkButton: Function returns the new button state if the button state
 // (PUSHED or RELEASED) has changed since the last call, otherwise returns
 // NO_CHANGE.  The argument butName should be one of constants in the
 // enumeration butStates, excluding 'NUM_BUTS'. Safe under interrupt.
-//uint8_t checkButton (uint8_t butName);
+uint8_t checkButton (uint8_t butName);
+
+int detect_hold(uint8_t butName,int lim);
+
+uint8_t swap_disp(uint8_t dispmode, uint8_t dir);
 
 #endif /*BUTTONS_H_*/

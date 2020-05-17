@@ -34,6 +34,10 @@
 
 // Define Variables
 #define SAMPLE_RATE_HZ 100 // rate for sampling accelerometers
+#define HOLD_TIME 100 // amount of cycles the button needs to be held down to confirm
+
+
+
 
 // Begin main loop
 int main(void)
@@ -58,7 +62,7 @@ int main(void)
     // Declaring accel measurement variables and vars used upon startup for the initialisation calibration
     vector3_t mean_acc;
     vector3_t offset;
-    vector3_t offset_mean_acc;
+//    vector3_t offset_mean_acc; Not used anymore
     uint32_t accel_norm;
     uint32_t steps; //
     uint8_t acc_buf_filled = 0;
@@ -76,7 +80,10 @@ int main(void)
 
     // Enable changing the displayed units
 //    uint8_t unitMode = UNITS_RAW;
-    vector_inputs inputFlags = {.dispMode=RAW, .D=0, .L=0, .R=0, .U=0};
+    vector_inputs inputFlags = {.D=0, .L=0, .R=0, .U=0};
+    uint8_t dispMode = RAW;
+
+    int held = 0;
 
     while (1) // TODO: On SYSCLK interrupt raising main_flag, run this while loop.
     {
@@ -108,12 +115,32 @@ int main(void)
         }
 
 
-        // If recalibrate button pressed, set current mean as the new offset
-        if (inputFlags.D == 1)
-        {
-            offset = mean_acc;
-            inputFlags.D = 0;
-        }
+
+        // Where all the polls are handled
+        // If held down for an amount of time, the steps reset
+            if (inputFlags.D == 1)
+            {
+                held = detect_hold(DOWN, HOLD_TIME);
+                if (held == 1) {
+                    total_steps = 0;
+                    inputFlags.D = 0;
+                    // offset = mean_acc; we don't need to offset anymore
+                }
+            }
+            //swaps units in distance mode on up button press only if the distance is displayed
+            if (inputFlags.U == 1){ //Magic number change later
+                dispMode = swap_disp(dispMode, 1);
+                inputFlags.U = 0;
+            }
+
+            //swaps from step and distance modes on left and right button presses
+            if (inputFlags.R == 1 || inputFlags.L == 1){
+                dispMode = swap_disp(dispMode, 0); //Magic number change later
+                inputFlags.R = 0;
+                inputFlags.L = 0;
+            }
+
+
 
         // Recalculates the current value by subtracting the current
         // mean acceleration by the last saved offset
@@ -132,17 +159,17 @@ int main(void)
         steps = total_steps; // won't need this when gui is done
 
         // Select display logic based on mode
-        switch (inputFlags.dispMode)
+        switch (dispMode)
         {
-        case 0: // Raw mode - MAGIC NUMBER? - Why does switch() not like using enumerated or declared constants?
+        case RAW: // Raw mode - MAGIC NUMBER? - Why does switch() not like using enumerated or declared constants?
             displayRAW(steps); //changed this to display steps to know it works
             break;
 
-        case 1: // Gravities mode
+        case GRAV: // Gravities mode
             displayKMeters(steps);
             break;
 
-        case 2: // MPS mode
+        case MPS: // MPS mode
             displayMiles(steps);
             break;
         }
