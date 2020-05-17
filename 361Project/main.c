@@ -2,9 +2,9 @@
  * Main source file for ENCE361 Project 1, Milestone 1
  *
  * FitnessMonGroup8
- * S. Allen, J. Zhu, G. Lay
+ * J. Zhu, G. Lay, S. Allen
  * using material from P. Bones and C. Moore
- * Last modified; 15/05/2020
+ * Last modified; 17/05/2020
  */
 
 #include <readAcc.h>
@@ -31,8 +31,9 @@
 #include "display.h" //
 #include "circBufT.h" //
 #include "stepCounter.h" //
+#include "switch.h"
 
-// Define Variables
+// Define Constants
 #define SYS_DELAY_DIV 128 // divisor for main loop timing
 #define SAMPLE_RATE_HZ 100 // rate for sampling accelerometers
 #define HOLD_TIME 50 // amount of cycles the button needs to be held down to confirm
@@ -55,6 +56,7 @@ int main(void)
     initCircBuf(&inBuffer_z, BUF_SIZE);
     initButtons();
     initAccl();
+    initSwitch();
 
     FPUEnable(); // enable FPU co-processor
     IntMasterEnable(); // Enable interrupts to the processor.
@@ -74,17 +76,19 @@ int main(void)
     uint8_t dispMode = STEP;
     uint8_t unitMode = KM;
     uint8_t inputMode = NORM;
-
+//    uint8_t switchState = 0;
     uint8_t held = 0;
 
     while (1) // TODO: On SYSCLK interrupt raising main_flag, run this while loop.
     {
         // THIS IS CAUSING THE LONG PRESS BUG, when combined with SysCtlDelay elsewhere (ie in buttons4.c)
-        // THIS IS BAD METHOD - need to use interrupts properly.
+        // THIS IS A BAD METHOD - need to use SysTick interrupt.
         SysCtlDelay(SysCtlClockGet() / SYS_DELAY_DIV);    // (not) approx 2 Hz
 
-        // Check buttons and update mode if required
+        // Check buttons and switches and update mode if required
         inputFlags = readButtonFlags(inputFlags);
+        inputMode = getSwitchPos();
+
 //        unitMode = butFlags.dispMode;
 
         // Pulls the data from the accelerometer and then collects it in a circular buffer
@@ -114,6 +118,7 @@ int main(void)
 //        offset_mean_acc.y = mean_acc.y - offset.y;
 //        offset_mean_acc.z = mean_acc.z - offset.z;
 
+
         // Calculate the norm of the x, y, and z acceleration readings in G's (could maybe make it a one argument function taking a vector3_t)
         accel_norm = calculate_norm(mean_acc); //
         // Flag is set based on norm
@@ -122,6 +127,7 @@ int main(void)
         total_steps = step_increment(total_steps, less_than, prev_less_than);
         // Update previous flag
         prev_less_than = less_than;
+
 
         // Where all the polls are handled
         // If held down for an amount of time, the steps reset
@@ -145,8 +151,12 @@ int main(void)
                 held = detect_hold(DOWN, DB_TIME);
                 if (held == 1)
                 {
-
+                    if (total_steps >= STEP_DECR) {
                     total_steps = total_steps - STEP_DECR;
+                    } else {
+                        total_steps = 0; // Unsigned int must not wrap around
+                    }
+
                     inputFlags.D = 0;
                 }
                 else if (held == 2) //not held long enough
