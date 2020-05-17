@@ -173,7 +173,9 @@ int main(void)
             {
                 if (inputMode == NORM)
                 {
+                    if (dispMode != STEP) {
                     unitMode = swap_units(unitMode);
+                    }
                 }
                 else
                 {
