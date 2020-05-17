@@ -8,7 +8,8 @@
  * The buttons are:  UP and DOWN (on the Orbit daughterboard) plus
  * LEFT and RIGHT on the Tiva.
  *
- * Mon 11 Group 20
+ * FitnessMonGroup8
+ * J. Zhu, G. Lay, S. Allen
  * Based on code by P.J. Bones UCECE
  */
 

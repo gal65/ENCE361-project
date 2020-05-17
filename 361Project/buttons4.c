@@ -3,7 +3,7 @@
  * ENCE361 sample code.
  *
  * FitnessMonGroup8
- * S. Allen, J. Zhu, G. Lay
+ * J. Zhu, G. Lay, S. Allen
  * Based on code by P.J. Bones UCECE
  *
  * The buttons are:  UP and DOWN (on the Orbit daughterboard) plus

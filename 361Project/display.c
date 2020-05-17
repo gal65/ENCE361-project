@@ -2,7 +2,7 @@
  * Init, form and display strings on OLED display.
  *
  * FitnessMonGroup8
- * S. Allen, J. Zhu, G. Lay
+ * J. Zhu, G. Lay, S. Allen
  * Based on code by C. Moore
  */
 
@@ -89,7 +89,7 @@ void displayDist(uint32_t steps, uint8_t unitmode)
     {
         strcpy(unit_str, "km");
         // Convert raw steps to units of km, as floats
-        float f_dist_km = ((float) steps * KM_CONV) / 1000;
+        float f_dist_km = (steps * KM_CONV) / 1000;
         // Convert float values to strings printable by usnprintf()
         ftos(f_dist_km, dist_str, INT_PLACES, DEC_PLACES);
     }
@@ -97,7 +97,7 @@ void displayDist(uint32_t steps, uint8_t unitmode)
     {
         strcpy(unit_str, "mi");
         // Convert raw steps to units of miles, as floats
-        float f_dist_mi = (((float) steps * KM_CONV) * MI_CONV) / 1000;
+        float f_dist_mi = ( steps * KM_CONV / 1000) * MI_CONV;
         // Convert float values to strings printable by usnprintf()
         ftos(f_dist_mi, dist_str, INT_PLACES, DEC_PLACES);
     }
