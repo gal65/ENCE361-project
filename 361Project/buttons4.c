@@ -225,7 +225,7 @@ vector_inputs readButtonFlags(vector_inputs inputFlags)
 // Checks how long a button is held down depending on a limit
 int detect_hold(uint8_t butName, int lim)
 {
-    int fin_flag = 0;
+    uint8_t fin_flag = 0;
     uint8_t butState;
     updateButtons();
     butState = checkButton(butName);
@@ -247,36 +247,7 @@ int detect_hold(uint8_t butName, int lim)
     return fin_flag;
 }
 
-// Used to swap the displays depending on the direction input and current disp
-uint8_t swap_disp(uint8_t dispmode, uint8_t dir)
-{
-    uint8_t next_disp;
-    switch (dir)
-    {
-    case 0: // Swap between distance and steps
-        if (dispmode == STEP)
-        {
-            next_disp = DIST;     // edit here for doing things with buttons
-        }
-        else
-        {
-            next_disp = STEP;
-        }
-        break;
 
-    case 1: // Swap between units (only works if it is displaying distance already)
-        if (dispmode == KM)
-        {
-            next_disp = MI;     // edit here for doing things with buttons
-        }
-        else if (dispmode == MI)
-        {
-            next_disp = KM;
-        }
-        break;
-    }
-    return next_disp;
-}
 
 /*
  uint8_t butState;

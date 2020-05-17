@@ -21,6 +21,7 @@
 #include "driverlib/debug.h"
 #include "inc/tm4c123gh6pm.h"  // Board specific defines (for PF0)
 #include "readAcc.h"
+#include "display.h"
 
 // For interrupts
 //#include "inc/hw_ints.h"
@@ -31,8 +32,6 @@
 //*****************************************************************************
 enum butNames {UP = 0, DOWN, LEFT, RIGHT, NUM_BUTS};
 enum butStates {RELEASED = 0, PUSHED, NO_CHANGE};
-enum dispModes {STEP = 0, DIST};
-enum unitModes {KM = 0, MI};
 
 // UP button
 #define UP_BUT_PERIPH  SYSCTL_PERIPH_GPIOE
@@ -55,7 +54,7 @@ enum unitModes {KM = 0, MI};
 #define RIGHT_BUT_PIN  GPIO_PIN_0
 #define RIGHT_BUT_NORMAL  true
 
-#define NUM_BUT_POLLS 4 // useful if in interrupt but NOT if polling from loops.
+#define NUM_BUT_POLLS 1 // useful if in interrupt but NOT if polling from loops.
 // Debounce algorithm: A state machine is associated with each button.
 // A state change occurs only after NUM_BUT_POLLS consecutive polls have
 // read the pin in the opposite condition, before the state changes and
@@ -102,7 +101,5 @@ void updateButtons (void);
 uint8_t checkButton (uint8_t butName);
 
 int detect_hold(uint8_t butName,int lim);
-
-uint8_t swap_disp(uint8_t dispmode, uint8_t dir);
 
 #endif /*BUTTONS_H_*/

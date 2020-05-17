@@ -71,6 +71,7 @@ int main(void)
 //    uint8_t unitMode = UNITS_RAW;
     vector_inputs inputFlags = { .D = 0, .L = 0, .R = 0, .U = 0 };
     uint8_t dispMode = STEP;
+    uint8_t unitMode = KM;
 
     uint8_t held = 0;
 
@@ -129,7 +130,7 @@ int main(void)
             break;
 
         case DIST: // Gravities mode
-            displayKMeters(steps);
+            displayDist(steps, unitMode);
             break;
         }
 
