@@ -123,8 +123,4 @@ void store_accl(vector3_t acceleration, circBuf_t *buffer_x, circBuf_t *buffer_y
 vector3_t calculate_mean(circBuf_t *buffer_x, circBuf_t *buffer_y, circBuf_t *buffer_z, uint8_t buf_size);
 
 
-// void function to reset the calibration of the accelerometer as displayed
-void accCalibrate (void);
-
-
 #endif /*READACC_H_*/
