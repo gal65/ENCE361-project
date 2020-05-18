@@ -1,10 +1,9 @@
-/*
+/*******************************************************
  * stepCounter.h
  *
- * Created on: 16/05/2020
  * FitnessMonGroup8
  * S. Allen, J. Zhu, G. Lay
- */
+ *******************************************************/
 
 #ifndef STEPCOUNTER_H_
 #define STEPCOUNTER_H_

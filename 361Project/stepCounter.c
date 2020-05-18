@@ -5,8 +5,6 @@
  *
  * FitnessMonGroup8
  * S. Allen, J. Zhu, G. Lay
- * Based on code by C.P. Moore
- *
 *******************************************************/
 
 #include <stepCounter.h>
