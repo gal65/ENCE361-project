@@ -11,25 +11,6 @@
 
 #include <readAcc.h>
 
-/**********************************************************
- * Constants
- **********************************************************/
-// Systick configuration
-//#define SYSTICK_RATE_HZ    100
-enum dispModes {RAW = 0, GRAV, MPS};
-
-/***********************************************************
- * Initialisation functions: clock, SysTick, PWM
- ***********************************************************
- * Clock
- ***********************************************************/
-/*void initClock (void)
-{
-    // Set the clock rate to 20 MHz
-    SysCtlClockSet (SYSCTL_SYSDIV_10 | SYSCTL_USE_PLL | SYSCTL_OSC_MAIN |
-                   SYSCTL_XTAL_16MHZ);
-} */
-
 // Initiate accelerometer
 void initAccl (void)
 {
@@ -84,9 +65,7 @@ void initAccl (void)
     I2CGenTransmit(toAccl, 1, WRITE, ACCL_ADDR);
 }
 
-/********************************************************
- * Function to read accelerometer
- ********************************************************/
+// function to read accelerometer
 vector3_t getAcclData (void)
 {
     vector3_t acceleration;
@@ -107,9 +86,8 @@ vector3_t getAcclData (void)
     return mean_acc;
 }
 
-//*****************************************************************************
+
 // Stores the values obtained by the accelerometer into the circular buffer
-//*****************************************************************************
 void store_accl(vector3_t acceleration, circBuf_t *buffer_x, circBuf_t *buffer_y, circBuf_t *buffer_z)
 {
     writeCircBuf(buffer_x, acceleration.x);
@@ -117,9 +95,8 @@ void store_accl(vector3_t acceleration, circBuf_t *buffer_x, circBuf_t *buffer_y
     writeCircBuf(buffer_z, acceleration.z);
 }
 
-//*****************************************************************************
-// Calculates the mean of the circular buffer and returns a 3 vector of x, y and z
-//*****************************************************************************
+
+// Calculates the mean of the circular buffer and returns a 3 vector of the raw x, y and z values
 vector3_t calculate_mean(circBuf_t *buffer_x, circBuf_t *buffer_y, circBuf_t *buffer_z, uint8_t buf_size)
 {
     vector3_t sum;
@@ -143,10 +120,6 @@ vector3_t calculate_mean(circBuf_t *buffer_x, circBuf_t *buffer_y, circBuf_t *bu
     return average;
 }
 
-// void function to reset the calibration of the accelerometer as displayed
-void accCalibrate (void)
-{
-     //  blank for now TODO; this is where we reset the accelerometers to zero
-}
+
 
 

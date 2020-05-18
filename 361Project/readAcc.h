@@ -37,11 +37,10 @@ typedef struct{
 } vector3_t;
 
 // Buffer of size BUF_SIZE integers (sample values) for each axis x, y and z
-//static circBuf_t* inBuffer; // Buffer of size BUF_SIZE integers (sample values)
 circBuf_t inBuffer_x;
 circBuf_t inBuffer_y;
 circBuf_t inBuffer_z;
-// Buffer of size BUF_SIZE integers (sample values) for the ADC (CURRENTLY NOT IN USE)
+// Buffer of size BUF_SIZE integers (sample values) for the ADC
 circBuf_t inBuffer;
 
 // Definition of unit modes
