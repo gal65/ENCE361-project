@@ -1,19 +1,21 @@
-/*
+/*******************************************************
  * stepCounter.c
  *
- *  Created on: 16/05/2020
- *      Author: Gordon
- */
+ * Module that contains functions to increment the step count
+ *
+ * FitnessMonGroup8
+ * S. Allen, J. Zhu, G. Lay
+ * Based on code by C.P. Moore
+ *
+*******************************************************/
 
 #include <stepCounter.h>
 #include "readAcc.h"
 
-
 // Define Variables
-// the raw value equivalent for 1.5G
-#define THRESHOLD_ACCEL 384
+#define THRESHOLD_ACCEL 384 // the raw value equivalent for 1.5G
 
-// takes x, y and z mean acceleration inputs and returns the norm, raw
+// takes x, y and z mean acceleration inputs and returns the norm, in raw value
 int32_t calculate_norm(vector3_t mean_acc)
 {
     int32_t accel_norm = sqrt(mean_acc.x*mean_acc.x + mean_acc.y*mean_acc.y + mean_acc.z*mean_acc.z);
