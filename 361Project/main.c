@@ -65,7 +65,7 @@ int main(void)
     vector3_t mean_acc;
     uint32_t accel_norm;
 
-    // declaring int variables and initialising values to 0
+    // declaring uint32_t variables and initialising values to 0
     uint32_t total_steps = 0;
     uint32_t less_than = 0;
     uint32_t prev_less_than = 0;
@@ -119,9 +119,9 @@ int main(void)
 //        offset_mean_acc.z = mean_acc.z - offset.z;
 
 
-        // Calculate the norm of the x, y, and z acceleration readings in G's (could maybe make it a one argument function taking a vector3_t)
-        accel_norm = calculate_norm(mean_acc); //
-        // Flag is set based on norm
+        // Calculate the norm of the x, y, and z acceleration readings in raw value, taking the mean acceleration as an argument
+        accel_norm = calculate_norm(mean_acc);
+        // Flag is set based on value of the norm
         less_than = less_than_flag(accel_norm);
         // Increment step count based on the 2 flags
         total_steps = step_increment(total_steps, less_than, prev_less_than);
