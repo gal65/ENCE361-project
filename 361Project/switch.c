@@ -29,7 +29,6 @@ uint8_t getSwitchPos(){
 
 //Initiates the switch gpio and interrupt which triggers on rising and falling edges
 void initSwitch(void) {
-    // UP button (active HIGH)
     SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOA);
     GPIOPinTypeGPIOInput(SW1_PORT_BASE, SW1_PIN);
     GPIOPadConfigSet(SW1_PORT_BASE, SW1_PIN, GPIO_STRENGTH_2MA,
@@ -38,6 +37,6 @@ void initSwitch(void) {
     GPIOIntRegister(SW1_PORT_BASE, switchIntHandler);
     GPIOIntTypeSet(SW1_PORT_BASE, SW1_PIN, GPIO_BOTH_EDGES);
     GPIOIntEnable(SW1_PORT_BASE, SW1_PIN);
-    checkSwitch ();
+    checkSwitch (); //Takes an initial read of the switch on startup
 
 }

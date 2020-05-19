@@ -1,8 +1,8 @@
-/*
- * switch.h
+/* switch.h
  *
- *  Created on: May 17, 2020
- *      Author: Jarrod
+ * Init, detect and flag interrupts on the switch
+ * FitnessMonGroup8
+ * J. Zhu, G. Lay, S. Allen
  */
 
 #ifndef SWITCH_H_

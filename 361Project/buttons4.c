@@ -15,9 +15,8 @@
 
 #include "buttons4.h"
 
-// *******************************************************
 // Globals to module
-// *******************************************************
+
 static bool but_state[NUM_BUTS];    // Corresponds to the electrical state
 static uint8_t but_count[NUM_BUTS];
 static bool but_flag[NUM_BUTS];
@@ -29,9 +28,8 @@ volatile uint32_t flagL;
 volatile uint32_t flagR;
 static uint8_t cycles = 0; //checks the cycles for the button held down
 
-// *******************************************************
 
-// initButtons: Initialise the variables associated with the set of buttons
+// initButtons: Initialise the variables and interrupts associated with the set of buttons
 // defined by the constants in the buttons2.h header file.
 void initButtons(void)
 {
@@ -77,8 +75,7 @@ void initButtons(void)
         but_flag[i] = false;
     }
 
-    // Adding an interrupt system in the init***
-    //GPIOIntRegister(UP_BUT_PORT_BASE, UPButIntHandler);
+    // Adding interrupts to each button system in the init
     GPIOIntRegister(UP_BUT_PORT_BASE, UPButIntHandler);
     GPIOIntRegister(DOWN_BUT_PORT_BASE, DOWNButIntHandler);
     GPIOIntRegister(LEFT_BUT_PORT_BASE, LEFTButIntHandler);
@@ -96,6 +93,7 @@ void initButtons(void)
 
 }
 
+// Interrupt handlers for each of the button inputs
 void UPButIntHandler(void)
 {
 
@@ -128,7 +126,7 @@ void RIGHTButIntHandler(void)
     GPIOIntDisable(RIGHT_BUT_PORT_BASE, RIGHT_BUT_PIN);
 }
 
-// *******************************************************
+
 // updateButtons: Function designed to be called regularly. It polls all
 // buttons once and updates variables associated with the buttons if
 // necessary.  It is efficient enough to be part of an ISR, e.g. from
@@ -169,7 +167,7 @@ void updateButtons(void)
     }
 }
 
-// *******************************************************
+
 // checkButton: Function returns the new button logical state if the button
 // logical state (PUSHED or RELEASED) has changed since the last call,
 // otherwise returns NO_CHANGE.
@@ -185,6 +183,7 @@ uint8_t checkButton(uint8_t butName)
     }
     return NO_CHANGE;
 }
+
 
 // Function to poll buttons; pushing UP will increment the mode cycle, pushing DOWN will set a flag to logic high
 // Only polls the flags set by the interrupts and does not require updating the buttons to do so
@@ -221,6 +220,7 @@ vector_inputs readButtonFlags(vector_inputs inputFlags)
     return inputFlags;
 }
 
+
 // Function acts as a detector for the a button held down
 // Checks how long a button is held down depending on a limit
 int detect_hold(uint8_t butName, int lim)
@@ -250,6 +250,8 @@ int detect_hold(uint8_t butName, int lim)
     return fin_flag;
 }
 
+
+// Swaps the units of the display
 uint8_t swap_units(uint8_t unitMode)
 {
     if (unitMode == KM)
@@ -262,62 +264,3 @@ uint8_t swap_units(uint8_t unitMode)
     }
     return unitMode;
 }
-
-/*
- uint8_t butState;
- int flag = 0;
-
- // Poll the buttons
- updateButtons();
-
- // check state of each button
- butState = checkButton(UP);
- switch (butState)
- {
- case PUSHED: // increment dispMode cycler if a change is detected on UP button
- if (dispMode == MPS) {
- dispMode = RAW;
- } else {
- dispMode++;
- }
- break;
- // Do nothing if state is NO_CHANGE or RELEASED
- }
- butState = checkButton(DOWN);
- switch (butState)
- {
- case PUSHED: // set flag to logic high if a change is detected on DOWN button
- flag = 1;
- break;
- // Do nothing if state is NO_CHANGE or RELEASED
- }
- */
-
-/*
- butState = checkButton(LEFT);
- switch (butState)
- {
- case PUSHED:
- displayButtonState("LEFT ", "PUSH", ++leftPushes, 2);
- break;
- case RELEASED:
- displayButtonState("LEFT ", "RELS", leftPushes, 2);
- break;
- // Do nothing if state is NO_CHANGE
- }
- butState = checkButton(RIGHT);
- switch (butState)
- {
- case PUSHED:
- displayButtonState("RIGHT", "PUSH", ++rightPushes, 3);
- break;
- case RELEASED:
- displayButtonState("RIGHT", "RELS", rightPushes, 3);
- break;
- // Do nothing if state is NO_CHANGE
- }
- */
-
-// set each field of the vector_buttons    - Better to do this as they happen?
-//    button_flags.dispMode = dispMode;
-//    button_flags.D = flag;

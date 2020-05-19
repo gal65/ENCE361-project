@@ -5,10 +5,10 @@
 // Support for a circular buffer of uint32_t values on the 
 //  Tiva processor.
 //
-// Mon 11 Group 20
+// FitnessMonGroup8
+// J. Zhu, G. Lay, S. Allen
 //
-// P.J. Bones UCECE
-// Last modified:  8.3.2017
+// Based on Code by P.J. Bones UCECE
 // 
 // *******************************************************
 
