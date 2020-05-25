@@ -43,33 +43,23 @@
 #define STEP_DECR 500   // Decrement steps in test mode
 #define TASK_FREQUENCY 100 // time to step in main while(1) loop
 
-volatile uint32_t tickyTime = 0;
+volatile uint32_t tickyTime = 0; // Count for progressing SysTick
 
 //*****************************************************************************
 //
 // The interrupt handler for the for SysTick interrupt.
 //
 //*****************************************************************************
-void SysTickIntHandler(void) //uint32_t ulSampCnt)
+void SysTickIntHandler(void)
 {
-    //
-    // Initiate a conversion
-    //ADCProcessorTrigger(ADC0_BASE, 3);
-    //ulSampCnt++;
     tickyTime++;
 }
 
 //*****************************************************************************
 // Initialisation functions for the clock (incl. SysTick), ADC, display
 //*****************************************************************************
-void initClock(uint32_t ulSampCnt)
+void initClock(void)
 {
-    /*
-     // Set the clock rate to 20 MHz
-     SysCtlClockSet (SYSCTL_SYSDIV_10 | SYSCTL_USE_PLL | SYSCTL_OSC_MAIN |
-     SYSCTL_XTAL_16MHZ);
-     //
-     */
     // Set up the period for the SysTick timer.  The SysTick timer period is
     // set as a function of the system clock.
     SysTickPeriodSet(SysCtlClockGet() / SAMPLE_RATE_HZ);
@@ -84,8 +74,6 @@ void initClock(uint32_t ulSampCnt)
 
 int main(void)
 {
-
-    static uint32_t ulSampCnt;   // Counter for the interrupts
     // Declare accel measurement vars
     vector3_t mean_acc;
     uint32_t accel_norm;
@@ -103,8 +91,7 @@ int main(void)
     uint8_t held = 0;
 
     // Initialise components
-    initClock(ulSampCnt);
-    //initADC();
+    initClock();
     initDisplay();
     initCircBuf(&inBuffer, BUF_SIZE);
     initCircBuf(&inBuffer_x, BUF_SIZE);
@@ -114,21 +101,17 @@ int main(void)
     initAccl();
     initSwitch();
 
-    FPUEnable();   // enable FPU co-processor
+    FPUEnable();         // enable FPU co-processor
     IntMasterEnable();   // Enable interrupts to the processor.
 
     uint32_t run_next = 0;
 
     while (1) // TODO: On SYSCLK interrupt raising main_flag, run this while loop.
     {
-        __wfi(); // wait for interrupt - power efficiency!
+        __wfi();        // wait for interrupt - power efficiency!
         if (tickyTime > run_next)
         {
             run_next += (SAMPLE_RATE_HZ / TASK_FREQUENCY);
-
-            // THIS IS CAUSING THE LONG PRESS BUG, when combined with SysCtlDelay elsewhere (ie in buttons4.c)
-            // THIS IS A BAD METHOD - TODO; use SysTick interrupt instead.
-            //SysCtlDelay(SysCtlClockGet() / SYS_DELAY_DIV); // Divisor is system rate in Hz
 
             // Pull the data from the accelerometer and then collect it in a circular buffer
             // The mean is then calculated and stored in a separate 3D vector variable
@@ -137,8 +120,8 @@ int main(void)
             inputFlags = readButtonFlags(inputFlags);
             inputMode = getSwitchPos();
 
-            // CALIBRATION OF ACCELEROMETERS - disabled.
-            // Unnecessary and makes for bad RMS magnitude if offset is large
+// CALIBRATION OF ACCELEROMETERS - disabled.
+// Unnecessary and makes for skewed RMS magnitudes if offset is large
 //        vector3_t offset;
 //        vector3_t offset_mean_acc;
 //        uint8_t acc_buf_filled = 0;

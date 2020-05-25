@@ -70,17 +70,9 @@ typedef struct{
     int U;
 } vector_inputs;
 
-// *******************************************************
 // initButtons: Initialise the variables associated with the set of buttons
 // defined by the constants above.
 void initButtons (void);
-
-// *******************************************************
-// updateButtons: Function designed to be called regularly. It polls all
-// buttons once and updates variables associated with the buttons if
-// necessary.  It is efficient enough to be part of an ISR, e.g. from
-// a SysTick interrupt.
-
 
 void UPButIntHandler (void);
 
@@ -94,6 +86,10 @@ void RIGHTButIntHandler (void);
 // Returns a struct containing the mode cycle and state of the flag
 vector_inputs readButtonFlags(vector_inputs butflags);
 
+// updateButtons: Function designed to be called regularly. It polls all
+// buttons once and updates variables associated with the buttons if
+// necessary.  It is efficient enough to be part of an ISR, e.g. from
+// a SysTick interrupt.
 void updateButtons (void);
 
 // checkButton: Function returns the new button state if the button state
