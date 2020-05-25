@@ -92,7 +92,7 @@ void displayDist(uint32_t steps, uint8_t unitmode)
         // Convert raw steps to units of km, as floats
         float f_dist_km = (steps * KM_CONV) / 1000;
         // Convert float values to strings printable by usnprintf()
-        ftos(f_dist_km, dist_str, INT_PLACES, DEC_PLACES);
+        f_to_s(f_dist_km, dist_str, INT_PLACES, DEC_PLACES);
     }
     else
     {
@@ -100,7 +100,7 @@ void displayDist(uint32_t steps, uint8_t unitmode)
         // Convert raw steps to units of miles, as floats
         float f_dist_mi = (steps * KM_CONV / 1000) * MI_CONV;
         // Convert float values to strings printable by usnprintf()
-        ftos(f_dist_mi, dist_str, INT_PLACES, DEC_PLACES);
+        f_to_s(f_dist_mi, dist_str, INT_PLACES, DEC_PLACES);
     }
     // Clear then fill display buffer, then refresh the display
     OrbitOledClearBuffer();

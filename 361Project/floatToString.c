@@ -27,7 +27,7 @@ void reverse(char* str, int len)
 // Converts a given integer x to string str[].
 // d is the number of digits required in the output, NOT INCLUDING the negative sign.
 // If d is more than the number of digits in x, then zeros are added at the beginning.
-int ipartToStr(int x, char str[], int integer_places, uint8_t neg_flag)
+int ipart_to_str(int x, char str[], int integerPlaces, uint8_t negFlag)
 {
     int i = 0;
 
@@ -38,11 +38,11 @@ int ipartToStr(int x, char str[], int integer_places, uint8_t neg_flag)
 
     // If number of digits required is more, then
     // add 0s at the beginning
-    while (i < integer_places) {
+    while (i < integerPlaces) {
         str[i++] = '0';
     }
 
-    if (neg_flag != 0) { // add a sign if required
+    if (negFlag != 0) { // add a sign if required
         str[i++] = '-';
     } else {
         str[i++] = ' ';
@@ -56,7 +56,7 @@ int ipartToStr(int x, char str[], int integer_places, uint8_t neg_flag)
 
 // Converts a given fraction part (in fixed point) x to string str[].
 // Version for fraction part.
-int fpartToStr(int x, char str[], int decimal_places)
+int fpart_to_str(int x, char str[], int decimalPlaces)
 {
     int i = 0;
 
@@ -67,7 +67,7 @@ int fpartToStr(int x, char str[], int decimal_places)
     }
 
     // If number of digits required is more, then add 0s at the beginning
-    while (i < decimal_places)
+    while (i < decimalPlaces)
     {
         str[i++] = '0';
     }
@@ -79,37 +79,37 @@ int fpartToStr(int x, char str[], int decimal_places)
 
 
 // Converts a floating-point/double number to a string.
-void ftos(float n, char* res, int integer_places, int decimal_places)
+void f_to_s(float n, char* res, int integerPlaces, int decimalPlaces)
 {
-    uint8_t neg_flag = 0;
+    uint8_t negFlag = 0;
 
     // Extract integer part
     int ipart = (int)n;
 
     // Extract floating part and convert to fixed point
     float fpart = n - (float)ipart;
-    fpart = fpart * pow(10, decimal_places);
+    fpart = fpart * pow(10, decimalPlaces);
 
     // If negative, set neg flag high and take absolute values for both parts
     // Note; abs() does not support floats; an integer is returned.
     if (n < 0)
     {
-        neg_flag = 1;
+        negFlag = 1;
         ipart = abs(ipart);
         fpart = abs(fpart);
     }
 
     // convert integer part to string
-    int i = ipartToStr(ipart, res, integer_places, neg_flag);
-    neg_flag = 0;
+    int i = ipart_to_str(ipart, res, integerPlaces, negFlag);
+    negFlag = 0;
 
     // check for display option after point
-    if (decimal_places != 0) {
+    if (decimalPlaces != 0) {
         res[i] = '.'; // add dot
 
         // Get the value of fraction part up to given no.
         // of points after dot. The third parameter
         // is needed to handle cases like 233.007
-        fpartToStr((int) fpart, res + i + 1, decimal_places);
+        fpart_to_str((int) fpart, res + i + 1, decimalPlaces);
     }
 }
