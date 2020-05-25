@@ -32,12 +32,22 @@
 #include <OrbitOLED/lib_OrbitOled/OrbitOledChar.h>
 #include <OrbitOLED/lib_OrbitOled/OrbitOled.h>
 
+
 // Initialise the OLED display - call on startup
 void initDisplay(void)
 {
     OLEDInitialise();
     OrbitOledSetCharUpdate(0);
 }
+
+
+// Order the refresh of the OLED display - call after each page update.
+// only required if OrbitOledSetCharUpdate(0) set on init (which it is)
+inline void redrawDisplay(void)
+{
+    OrbitOledUpdate();
+}
+
 
 // Swap the display mode depending on the current input and the
 uint8_t swap_disp(uint8_t dispmode)
@@ -66,14 +76,15 @@ void displayRAW(uint32_t steps)
     redrawDisplay();
 }
 
+
 // Distance-mode display handler. Accepts raw steps and unit mode
 // Form strings including floats, fill display buffer, and refresh
 void displayDist(uint32_t steps, uint8_t unitmode)
 {
     // Declare string for float-to-string conversion
-    static char dist_str[INT_PLACES + DEC_PLACES + 1];
-    static char unit_str[2 + 1];   // units have two letters and null terminator
-    IntMasterDisable();   // dealing with floats, disable ints for speed
+    char dist_str[INT_PLACES + DEC_PLACES + 1] = {'\0'}; // init to full of zeros for safety
+    char unit_str[2 + 1] = {'\0'};   // units have two letters and null terminator
+    //IntMasterDisable();   // dealing with floats, disable ints for speed
     if (unitmode == KM)
     {
         strcpy(unit_str, "km");
@@ -95,7 +106,7 @@ void displayDist(uint32_t steps, uint8_t unitmode)
     OLEDStringDraw("Distance:", 0, 0);
     displayUpdateFloatStr("", "", dist_str, unit_str, 2);
     redrawDisplay();
-    IntMasterEnable();
+    //IntMasterEnable(); // don't actually need this - floats not messed with
 }
 
 
@@ -131,12 +142,4 @@ void displayUpdateFloatStr(char *str1, char *str2, char *float_string,
               float_string, str3);
     // Send line to display buffer
     OLEDStringDraw(text_buffer, 0, charLine);
-}
-
-
-// Order the refresh of the OLED display - call after each page update.
-// only required if OrbitOledSetCharUpdate(0) set on init (which it is)
-void redrawDisplay(void)
-{
-    OrbitOledUpdate();
 }

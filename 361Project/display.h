@@ -45,9 +45,9 @@ void displayUpdate (char *str1, char *str2, int16_t num, char *str3, uint8_t cha
 // The display has 4 rows of 16 characters, with 0, 0 at top left.
 void displayUpdateFloatStr (char *str1, char *str2, char *float_string, char *str3, uint8_t charLine);
 
-// Order the refresh of the OLED display - call after each page update.
-// only required if OrbitOledSetCharUpdate(0) set on init (which it is)
-void redrawDisplay(void);
+//// Order the refresh of the OLED display - call after each page update.
+//// only required if OrbitOledSetCharUpdate(0) set on init (which it is)
+//void redrawDisplay(void);
 
 
 #endif /* DISPLAY_H_ */

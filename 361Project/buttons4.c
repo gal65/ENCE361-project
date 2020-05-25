@@ -28,6 +28,14 @@ volatile uint32_t flagL;
 volatile uint32_t flagR;
 static uint8_t cycles = 0; //checks the cycles for the button held down
 
+static void initButton(enum butNames butId, uint32_t peripheral,uint32_t base, uint8_t pin, bool logic)
+{
+    SysCtlPeripheralEnable(peripheral);
+    GPIOPinTypeGPIOInput(base, pin);
+    GPIOPadConfigSet(base, pin, GPIO_STRENGTH_2MA,
+            logic ? GPIO_PIN_TYPE_STD_WPU : GPIO_PIN_TYPE_STD_WPD); // ternary operator
+    but_normal[butId] = logic;
+}
 
 // initButtons: Initialise the variables and interrupts associated with the set of buttons
 // defined by the constants in the buttons2.h header file.
@@ -37,36 +45,44 @@ void initButtons(void)
     int i;
 
     // UP button (active HIGH)
-    SysCtlPeripheralEnable(UP_BUT_PERIPH);
-    GPIOPinTypeGPIOInput(UP_BUT_PORT_BASE, UP_BUT_PIN);
-    GPIOPadConfigSet(UP_BUT_PORT_BASE, UP_BUT_PIN, GPIO_STRENGTH_2MA,
-    GPIO_PIN_TYPE_STD_WPD);
-    but_normal[UP] = UP_BUT_NORMAL;
+    initButton(UP, UP_BUT_PERIPH,UP_BUT_PORT_BASE, UP_BUT_PIN, UP_BUT_NORMAL);
+//    SysCtlPeripheralEnable(UP_BUT_PERIPH);
+//    GPIOPinTypeGPIOInput(UP_BUT_PORT_BASE, UP_BUT_PIN);
+//    GPIOPadConfigSet(UP_BUT_PORT_BASE, UP_BUT_PIN, GPIO_STRENGTH_2MA,
+//    GPIO_PIN_TYPE_STD_WPD);
+//    but_normal[UP] = UP_BUT_NORMAL;
+
     // DOWN button (active HIGH)
-    SysCtlPeripheralEnable(DOWN_BUT_PERIPH);
-    GPIOPinTypeGPIOInput(DOWN_BUT_PORT_BASE, DOWN_BUT_PIN);
-    GPIOPadConfigSet(DOWN_BUT_PORT_BASE, DOWN_BUT_PIN, GPIO_STRENGTH_2MA,
-    GPIO_PIN_TYPE_STD_WPD);
-    but_normal[DOWN] = DOWN_BUT_NORMAL;
+    initButton(DOWN, DOWN_BUT_PERIPH,DOWN_BUT_PORT_BASE, DOWN_BUT_PIN, DOWN_BUT_NORMAL);
+//    SysCtlPeripheralEnable(DOWN_BUT_PERIPH);
+//    GPIOPinTypeGPIOInput(DOWN_BUT_PORT_BASE, DOWN_BUT_PIN);
+//    GPIOPadConfigSet(DOWN_BUT_PORT_BASE, DOWN_BUT_PIN, GPIO_STRENGTH_2MA,
+//    GPIO_PIN_TYPE_STD_WPD);
+//    but_normal[DOWN] = DOWN_BUT_NORMAL;
+
     // LEFT button (active LOW)
-    SysCtlPeripheralEnable(LEFT_BUT_PERIPH);
-    GPIOPinTypeGPIOInput(LEFT_BUT_PORT_BASE, LEFT_BUT_PIN);
-    GPIOPadConfigSet(LEFT_BUT_PORT_BASE, LEFT_BUT_PIN, GPIO_STRENGTH_2MA,
-    GPIO_PIN_TYPE_STD_WPU);
-    but_normal[LEFT] = LEFT_BUT_NORMAL;
+    initButton(LEFT, LEFT_BUT_PERIPH,LEFT_BUT_PORT_BASE, LEFT_BUT_PIN, LEFT_BUT_NORMAL);
+//    SysCtlPeripheralEnable(LEFT_BUT_PERIPH);
+//    GPIOPinTypeGPIOInput(LEFT_BUT_PORT_BASE, LEFT_BUT_PIN);
+//    GPIOPadConfigSet(LEFT_BUT_PORT_BASE, LEFT_BUT_PIN, GPIO_STRENGTH_2MA,
+//    GPIO_PIN_TYPE_STD_WPU);
+//    but_normal[LEFT] = LEFT_BUT_NORMAL;
+
     // RIGHT button (active LOW)
     // Note that PF0 is one of a handful of GPIO pins that need to be
     // "unlocked" before they can be reconfigured.  This also requires
-    //      #include "inc/tm4c123gh6pm.h"
-    SysCtlPeripheralEnable(RIGHT_BUT_PERIPH);
+    // the #include "inc/tm4c123gh6pm.h"
+    SysCtlPeripheralEnable(RIGHT_BUT_PERIPH); // must enable before unlocking
     //---Unlock PF0 for the right button:
     GPIO_PORTF_LOCK_R = GPIO_LOCK_KEY;
     GPIO_PORTF_CR_R |= GPIO_PIN_0; //PF0 unlocked
     GPIO_PORTF_LOCK_R = GPIO_LOCK_M;
-    GPIOPinTypeGPIOInput(RIGHT_BUT_PORT_BASE, RIGHT_BUT_PIN);
-    GPIOPadConfigSet(RIGHT_BUT_PORT_BASE, RIGHT_BUT_PIN, GPIO_STRENGTH_2MA,
-    GPIO_PIN_TYPE_STD_WPU);
-    but_normal[RIGHT] = RIGHT_BUT_NORMAL;
+    // Now init
+    initButton(RIGHT, RIGHT_BUT_PERIPH,RIGHT_BUT_PORT_BASE, RIGHT_BUT_PIN, RIGHT_BUT_NORMAL);
+//    GPIOPinTypeGPIOInput(RIGHT_BUT_PORT_BASE, RIGHT_BUT_PIN);
+//    GPIOPadConfigSet(RIGHT_BUT_PORT_BASE, RIGHT_BUT_PIN, GPIO_STRENGTH_2MA,
+//    GPIO_PIN_TYPE_STD_WPU);
+//    but_normal[RIGHT] = RIGHT_BUT_NORMAL;
 
     for (i = 0; i < NUM_BUTS; i++)
     {
