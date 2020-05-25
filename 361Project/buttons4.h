@@ -104,6 +104,4 @@ uint8_t checkButton (uint8_t butName);
 
 int detect_hold(uint8_t butName,int lim);
 
-uint8_t swap_units(uint8_t unitMode);
-
 #endif /*BUTTONS_H_*/

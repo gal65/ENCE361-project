@@ -49,5 +49,6 @@ void displayUpdateFloatStr (char *str1, char *str2, char *float_string, char *st
 // only required if OrbitOledSetCharUpdate(0) set on init (which it is)
 void redrawDisplay(void);
 
+uint8_t swap_units(uint8_t unitMode);
 
 #endif /* DISPLAY_H_ */

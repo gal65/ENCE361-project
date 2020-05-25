@@ -251,16 +251,4 @@ int detect_hold(uint8_t butName, int lim)
 }
 
 
-// Swaps the units of the display
-uint8_t swap_units(uint8_t unitMode)
-{
-    if (unitMode == KM)
-    {
-        unitMode = MI;
-    }
-    else
-    {
-        unitMode = KM;
-    }
-    return unitMode;
-}
+
