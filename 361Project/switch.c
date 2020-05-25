@@ -12,7 +12,7 @@ volatile uint8_t switchPos;
 
 
 // Reads the gpio pin and changes the switch position variable
-void checkSwitch (){
+void checkSwitch (void){
     switchPos = GPIOPinRead(SW1_PORT_BASE, SW1_PIN) == SW1_PIN;
 }
 
@@ -26,7 +26,7 @@ void switchIntHandler (void)
 
 
 //Returns the value stored for the switch position (does not read the pin)
-uint8_t getSwitchPos(){
+uint8_t getSwitchPos(void){
     return switchPos;
 }
 

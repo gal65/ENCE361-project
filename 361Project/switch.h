@@ -23,11 +23,11 @@
 #define SW1_PIN GPIO_PIN_7
 
 
-void checkSwitch ();
+void checkSwitch (void);
 
 void switchIntHandler (void);
 
-uint8_t getSwitchPos();
+uint8_t getSwitchPos(void);
 
 void initSwitch(void);
 
