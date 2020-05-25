@@ -6,7 +6,7 @@
  * J. Zhu, G. Lay, S. Allen
  * using material from P. Bones and C. Moore
  *
- * Last modified; 17/05/2020
+ * Last modified; 25/05/2020
  */
 
 #include <readAcc.h>

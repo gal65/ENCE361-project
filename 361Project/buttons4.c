@@ -28,12 +28,13 @@ volatile uint32_t flagL;
 volatile uint32_t flagR;
 static uint8_t cycles = 0; //checks the cycles for the button held down
 
-static void initButton(enum butNames butId, uint32_t peripheral,uint32_t base, uint8_t pin, bool logic)
+static void initButton(enum butNames butId, uint32_t peripheral, uint32_t base,
+                       uint8_t pin, bool logic)
 {
     SysCtlPeripheralEnable(peripheral);
     GPIOPinTypeGPIOInput(base, pin);
     GPIOPadConfigSet(base, pin, GPIO_STRENGTH_2MA,
-            logic ? GPIO_PIN_TYPE_STD_WPU : GPIO_PIN_TYPE_STD_WPD); // ternary operator
+                     logic ? GPIO_PIN_TYPE_STD_WPU : GPIO_PIN_TYPE_STD_WPD); // ternary operator for the lols
     but_normal[butId] = logic;
 }
 
@@ -41,11 +42,10 @@ static void initButton(enum butNames butId, uint32_t peripheral,uint32_t base, u
 // defined by the constants in the buttons2.h header file.
 void initButtons(void)
 {
-
     int i;
 
     // UP button (active HIGH)
-    initButton(UP, UP_BUT_PERIPH,UP_BUT_PORT_BASE, UP_BUT_PIN, UP_BUT_NORMAL);
+    initButton(UP, UP_BUT_PERIPH, UP_BUT_PORT_BASE, UP_BUT_PIN, UP_BUT_NORMAL);
 //    SysCtlPeripheralEnable(UP_BUT_PERIPH);
 //    GPIOPinTypeGPIOInput(UP_BUT_PORT_BASE, UP_BUT_PIN);
 //    GPIOPadConfigSet(UP_BUT_PORT_BASE, UP_BUT_PIN, GPIO_STRENGTH_2MA,
@@ -53,7 +53,8 @@ void initButtons(void)
 //    but_normal[UP] = UP_BUT_NORMAL;
 
     // DOWN button (active HIGH)
-    initButton(DOWN, DOWN_BUT_PERIPH,DOWN_BUT_PORT_BASE, DOWN_BUT_PIN, DOWN_BUT_NORMAL);
+    initButton(DOWN, DOWN_BUT_PERIPH, DOWN_BUT_PORT_BASE, DOWN_BUT_PIN,
+               DOWN_BUT_NORMAL);
 //    SysCtlPeripheralEnable(DOWN_BUT_PERIPH);
 //    GPIOPinTypeGPIOInput(DOWN_BUT_PORT_BASE, DOWN_BUT_PIN);
 //    GPIOPadConfigSet(DOWN_BUT_PORT_BASE, DOWN_BUT_PIN, GPIO_STRENGTH_2MA,
@@ -61,7 +62,8 @@ void initButtons(void)
 //    but_normal[DOWN] = DOWN_BUT_NORMAL;
 
     // LEFT button (active LOW)
-    initButton(LEFT, LEFT_BUT_PERIPH,LEFT_BUT_PORT_BASE, LEFT_BUT_PIN, LEFT_BUT_NORMAL);
+    initButton(LEFT, LEFT_BUT_PERIPH, LEFT_BUT_PORT_BASE, LEFT_BUT_PIN,
+               LEFT_BUT_NORMAL);
 //    SysCtlPeripheralEnable(LEFT_BUT_PERIPH);
 //    GPIOPinTypeGPIOInput(LEFT_BUT_PORT_BASE, LEFT_BUT_PIN);
 //    GPIOPadConfigSet(LEFT_BUT_PORT_BASE, LEFT_BUT_PIN, GPIO_STRENGTH_2MA,
@@ -78,13 +80,14 @@ void initButtons(void)
     GPIO_PORTF_CR_R |= GPIO_PIN_0; //PF0 unlocked
     GPIO_PORTF_LOCK_R = GPIO_LOCK_M;
     // Now init
-    initButton(RIGHT, RIGHT_BUT_PERIPH,RIGHT_BUT_PORT_BASE, RIGHT_BUT_PIN, RIGHT_BUT_NORMAL);
+    initButton(RIGHT, RIGHT_BUT_PERIPH, RIGHT_BUT_PORT_BASE, RIGHT_BUT_PIN,
+               RIGHT_BUT_NORMAL);
 //    GPIOPinTypeGPIOInput(RIGHT_BUT_PORT_BASE, RIGHT_BUT_PIN);
 //    GPIOPadConfigSet(RIGHT_BUT_PORT_BASE, RIGHT_BUT_PIN, GPIO_STRENGTH_2MA,
 //    GPIO_PIN_TYPE_STD_WPU);
 //    but_normal[RIGHT] = RIGHT_BUT_NORMAL;
 
-    for (i = 0; i < NUM_BUTS; i++)
+    for (i = 0; i < NUM_BUTS; i++)   // What is this doing here?
     {
         but_state[i] = but_normal[i];
         //but_count[i] = 0;
@@ -142,7 +145,6 @@ void RIGHTButIntHandler(void)
     GPIOIntDisable(RIGHT_BUT_PORT_BASE, RIGHT_BUT_PIN);
 }
 
-
 // updateButtons: Function designed to be called regularly. It polls all
 // buttons once and updates variables associated with the buttons if
 // necessary.  It is efficient enough to be part of an ISR, e.g. from
@@ -183,7 +185,6 @@ void updateButtons(void)
     }
 }
 
-
 // checkButton: Function returns the new button logical state if the button
 // logical state (PUSHED or RELEASED) has changed since the last call,
 // otherwise returns NO_CHANGE.
@@ -199,7 +200,6 @@ uint8_t checkButton(uint8_t butName)
     }
     return NO_CHANGE;
 }
-
 
 // Function to poll buttons; pushing UP will increment the mode cycle, pushing DOWN will set a flag to logic high
 // Only polls the flags set by the interrupts and does not require updating the buttons to do so
@@ -236,7 +236,6 @@ vector_inputs readButtonFlags(vector_inputs inputFlags)
     return inputFlags;
 }
 
-
 // Function acts as a detector for the a button held down
 // Checks how long a button is held down depending on a limit
 int detect_hold(uint8_t butName, int lim)
@@ -266,17 +265,3 @@ int detect_hold(uint8_t butName, int lim)
     return fin_flag;
 }
 
-
-// Swaps the units of the display
-uint8_t swap_units(uint8_t unitMode)
-{
-    if (unitMode == KM)
-    {
-        unitMode = MI;
-    }
-    else
-    {
-        unitMode = KM;
-    }
-    return unitMode;
-}

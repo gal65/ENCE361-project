@@ -143,3 +143,28 @@ void displayUpdateFloatStr(char *str1, char *str2, char *float_string,
     // Send line to display buffer
     OLEDStringDraw(text_buffer, 0, charLine);
 }
+<<<<<<< HEAD
+=======
+
+
+// Order the refresh of the OLED display - call after each page update.
+// only required if OrbitOledSetCharUpdate(0) set on init (which it is)
+void redrawDisplay(void)
+{
+    OrbitOledUpdate();
+}
+
+// Swaps the units of the display
+uint8_t swap_units(uint8_t unitMode)
+{
+    if (unitMode == KM)
+    {
+        unitMode = MI;
+    }
+    else
+    {
+        unitMode = KM;
+    }
+    return unitMode;
+}
+>>>>>>> branch 'master' of https://eng-git.canterbury.ac.nz/ence361-2020/fitnessmongroup8.git
