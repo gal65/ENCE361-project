@@ -1,7 +1,8 @@
 #ifndef BUTTONS_H_
 #define BUTTONS_H_
 
-/* buttons4.h
+/*
+ * buttons4.h
  *
  * Support for a set of FOUR specific buttons on the Tiva/Orbit.
  * ENCE361 sample code.
@@ -28,9 +29,8 @@
 //#include "inc/hw_ints.h"
 #include "driverlib/interrupt.h"
 
-//*****************************************************************************
+
 // Constants
-//*****************************************************************************
 enum butNames {UP = 0, DOWN, LEFT, RIGHT, NUM_BUTS};
 enum butStates {RELEASED = 0, PUSHED, NO_CHANGE};
 enum inputMode {NORM = 0, TEST};
@@ -56,11 +56,7 @@ enum inputMode {NORM = 0, TEST};
 #define RIGHT_BUT_PIN  GPIO_PIN_0
 #define RIGHT_BUT_NORMAL  true
 
-#define NUM_BUT_POLLS 1 // useful if in interrupt but NOT if polling from loops.
-// Debounce algorithm: A state machine is associated with each button.
-// A state change occurs only after NUM_BUT_POLLS consecutive polls have
-// read the pin in the opposite condition, before the state changes and
-// a flag is set.  Set NUM_BUT_POLLS according to the polling rate.
+#define NUM_BUT_POLLS 1 // Effectively disabled - now debouncing with waits
 
 // Structure definition for poll buttons
 typedef struct{
@@ -69,6 +65,7 @@ typedef struct{
     int R;
     int U;
 } vector_inputs;
+
 
 // initButtons: Initialise the variables associated with the set of buttons
 // defined by the constants above.
@@ -98,6 +95,6 @@ void updateButtons (void);
 // enumeration butStates, excluding 'NUM_BUTS'. Safe under interrupt.
 uint8_t checkButton (uint8_t butName);
 
-int detect_hold(uint8_t butName,int lim);
+int detectHold(uint8_t butName,int lim);
 
 #endif /*BUTTONS_H_*/

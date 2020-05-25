@@ -1,4 +1,5 @@
-/* Main.c
+/*
+ * Main.c
  *
  * Main source file for ENCE361 Fitness Tracker project.
  *
@@ -25,7 +26,6 @@
 #include "utils/ustdlib.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include "ADC.h"   //
 #include "readAcc.h"   //
 #include "buttons4.h"   //
 #include "floatToString.h"   //
@@ -35,34 +35,29 @@
 #include "switch.h"   //
 
 // Define Constants
-#define SYS_DELAY_DIV 128   // divisor for main loop timing
-#define SAMPLE_RATE_HZ 100   // rate for sampling accelerometers
-#define LONG_PRESS 50   // amount of cycles the button needs to be held down to confirm
-#define SHORT_PRESS 4   // number of cycles to debounce a button
-#define STEP_INCR 100   // Increment steps in test mode
-#define STEP_DECR 500   // Decrement steps in test mode
-#define TASK_FREQUENCY 100 // time to step in main while(1) loop
+#define SYSTEM_RATE_HZ 100       // rate for sampling accelerometers
+#define LONG_PRESS 120           // number of cycles for a long press
+#define SHORT_PRESS 5            // number of cycles to debounce a button
+#define STEP_INCR 100            // Increment steps in test mode
+#define STEP_DECR 500            // Decrement steps in test mode
+#define TASK_FREQUENCY 100       // time to step in main while(1) loop
 
 volatile uint32_t tickyTime = 0; // Count for progressing SysTick
 
-//*****************************************************************************
-//
+
 // The interrupt handler for the for SysTick interrupt.
-//
-//*****************************************************************************
 void SysTickIntHandler(void)
 {
     tickyTime++;
 }
 
-//*****************************************************************************
+
 // Initialisation functions for the clock (incl. SysTick), ADC, display
-//*****************************************************************************
 void initClock(void)
 {
     // Set up the period for the SysTick timer.  The SysTick timer period is
     // set as a function of the system clock.
-    SysTickPeriodSet(SysCtlClockGet() / SAMPLE_RATE_HZ);
+    SysTickPeriodSet(SysCtlClockGet() / SYSTEM_RATE_HZ);
     //
     // Register the interrupt handler
     SysTickIntRegister(SysTickIntHandler);
@@ -71,6 +66,7 @@ void initClock(void)
     SysTickIntEnable();
     SysTickEnable();
 }
+
 
 int main(void)
 {
@@ -106,12 +102,13 @@ int main(void)
 
     uint32_t run_next = 0;
 
-    while (1) // TODO: On SYSCLK interrupt raising main_flag, run this while loop.
+    while (1)
     {
-        __wfi();        // wait for interrupt - power efficiency!
+        __wfi();        // wait for interrupt.
+                        // One small step for the compiler. A great leap for power consumption.
         if (tickyTime > run_next)
         {
-            run_next += (SAMPLE_RATE_HZ / TASK_FREQUENCY);
+            run_next += (SYSTEM_RATE_HZ / TASK_FREQUENCY);
 
             // Pull the data from the accelerometer and then collect it in a circular buffer
             // The mean is then calculated and stored in a separate 3D vector variable
@@ -160,7 +157,7 @@ int main(void)
             {
                 if (inputMode == NORM)
                 {
-                    held = detect_hold(DOWN, LONG_PRESS); // If held down for an amount of time,
+                    held = detectHold(DOWN, LONG_PRESS); // If held down for an amount of time,
 
                     if (held == 1)
                     {
@@ -174,7 +171,7 @@ int main(void)
                 }
                 else
                 {
-                    held = detect_hold(DOWN, SHORT_PRESS); // debounce using short press method
+                    held = detectHold(DOWN, SHORT_PRESS); // debounce using short press method
                     if (held == 1)
                     {
                         if (total_steps >= STEP_DECR)
@@ -198,14 +195,14 @@ int main(void)
             //swaps units in distance mode on up button press only if the distance is displayed
             if (inputFlags.U == 1) // UP button
             {
-                held = detect_hold(UP, SHORT_PRESS);
+                held = detectHold(UP, SHORT_PRESS);
                 if (held == 1)
                 {
                     if (inputMode == NORM)
                     {
                         if (dispMode != STEP)
                         {
-                            unitMode = swap_units(unitMode);
+                            unitMode = swapUnits(unitMode);
                         }
                     }
                     else
@@ -223,10 +220,10 @@ int main(void)
             // Swap from step and distance modes on left button presses
             if (inputFlags.L == 1)   // LEFT button
             {
-                held = detect_hold(LEFT, SHORT_PRESS);
+                held = detectHold(LEFT, SHORT_PRESS);
                 if (held == 1)
                 {
-                    dispMode = swap_disp(dispMode);
+                    dispMode = swapDisp(dispMode);
                     inputFlags.L = 0;
                 }
                 else if (held == 2)   //not held long enough
@@ -238,10 +235,10 @@ int main(void)
             // Swap from step and distance modes on right button presses
             if (inputFlags.R == 1)   // RIGHT BUTTON
             {
-                held = detect_hold(RIGHT, SHORT_PRESS);
+                held = detectHold(RIGHT, SHORT_PRESS);
                 if (held == 1)
                 {
-                    dispMode = swap_disp(dispMode);
+                    dispMode = swapDisp(dispMode);
                     inputFlags.R = 0;
                 }
                 else if (held == 2)   //not held long enough

@@ -1,5 +1,10 @@
+/*
+ * FitnessMonGroup8
+ * S. Allen, J. Zhu, G. Lay
+ * Module unchanged
+ */
+
 //*****************************************************************************
-//
 // Startup code for use with TI's Code Composer Studio.
 //
 // Copyright (c) 2011-2014 Texas Instruments Incorporated.  All rights reserved.

@@ -1,7 +1,8 @@
 #ifndef FLOATTOSTRING_H_
 #define FLOATTOSTRING_H_
 
-/* Module converts floats to strings for display on OLED with driver lacking support for printing floats
+/*
+ * Module converts floats to strings for display on OLED with driver lacking support for printing floats
  *
  * FitnessMonGroup8
  * S. Allen, J. Zhu, G. Lay
@@ -28,7 +29,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "OrbitOLED/OrbitOLEDInterface.h"
-#include "ADC.h"
 #include "readAcc.h"
 #include "buttons4.h"
 #include "floatToString.h"

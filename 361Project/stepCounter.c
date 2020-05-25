@@ -1,11 +1,11 @@
-/*******************************************************
+/*
  * stepCounter.c
  *
  * Module that contains functions to increment the step count
  *
  * FitnessMonGroup8
  * S. Allen, J. Zhu, G. Lay
-*******************************************************/
+*/
 
 #include <stepCounter.h>
 #include "readAcc.h"

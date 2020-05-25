@@ -1,16 +1,18 @@
 #ifndef I2C_DRIVER_H_
 #define I2C_DRIVER_H_
 
-/*******************************************************
- *
+ /*
  * i2c_driver.h
  *
  * Support for I2C helper functions on Tiva board.
  *
- * C.P. Moore
+ * FitnessMonGroup8
+ * S. Allen, J. Zhu, G. Lay
+ * Module by C. P. Moore
  * Last modified:  24/02/2020
- *
-*******************************************************/
+*/
+
+
 /*
  * I2C Control
  */

@@ -1,4 +1,5 @@
-/* Module converts floats to strings for display on OLED with driver lacking support for printing floats;
+/*
+ * Module converts floats to strings for display on OLED with driver lacking support for printing floats;
  *
  * FitnessMonGroup8
  * S. Allen, J. Zhu, G. Lay
@@ -21,6 +22,7 @@ void reverse(char* str, int len)
         j--;
     }
 }
+
 
 // Converts a given integer x to string str[].
 // d is the number of digits required in the output, NOT INCLUDING the negative sign.
@@ -51,6 +53,7 @@ int ipartToStr(int x, char str[], int integer_places, uint8_t neg_flag)
     return i;
 }
 
+
 // Converts a given fraction part (in fixed point) x to string str[].
 // Version for fraction part.
 int fpartToStr(int x, char str[], int decimal_places)
@@ -73,6 +76,7 @@ int fpartToStr(int x, char str[], int decimal_places)
     str[i] = '\0';
     return i;
 }
+
 
 // Converts a floating-point/double number to a string.
 void ftos(float n, char* res, int integer_places, int decimal_places)
@@ -106,7 +110,6 @@ void ftos(float n, char* res, int integer_places, int decimal_places)
         // Get the value of fraction part up to given no.
         // of points after dot. The third parameter
         // is needed to handle cases like 233.007
-
         fpartToStr((int) fpart, res + i + 1, decimal_places);
     }
 }

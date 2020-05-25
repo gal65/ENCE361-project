@@ -1,3 +1,10 @@
+/*
+ * FitnessMonGroup8
+ * S. Allen, J. Zhu, G. Lay
+ * Module unchanged
+ */
+
+
 /******************************************************************************
  *
  * Default Linker Command file for the Texas Instruments TM4C123GH6PM

@@ -1,7 +1,7 @@
 #ifndef READACC_H_
 #define READACC_H_
 
-/*******************************************************
+/*
  * acc.h
  * Support for interfacing with the ADXL345 accelerometer
  * on the Orbit BoosterPack.
@@ -10,8 +10,7 @@
  * S. Allen, J. Zhu, G. Lay
  * Based on code by C.P. Moore
  * Last modified:  24/02/2020
- *
-*******************************************************/
+ */
 
 #include <stdint.h>
 #include <stdbool.h>

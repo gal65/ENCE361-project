@@ -1,4 +1,5 @@
-/* buttons4.c
+/*
+ * buttons4.c
  * Support for a set of FOUR specific buttons on the Tiva/Orbit.
  * ENCE361 sample code.
  *
@@ -15,8 +16,6 @@
 
 #include "buttons4.h"
 
-// Globals to module
-
 static bool but_state[NUM_BUTS];    // Corresponds to the electrical state
 static uint8_t but_count[NUM_BUTS];
 static bool but_flag[NUM_BUTS];
@@ -26,7 +25,7 @@ volatile uint32_t flagU;
 volatile uint32_t flagD;
 volatile uint32_t flagL;
 volatile uint32_t flagR;
-static uint8_t cycles = 0; //checks the cycles for the button held down
+static uint8_t cycles = 0;          //checks the cycles for the button held down
 
 static void initButton(enum butNames butId, uint32_t peripheral, uint32_t base,
                        uint8_t pin, bool logic)
@@ -37,6 +36,7 @@ static void initButton(enum butNames butId, uint32_t peripheral, uint32_t base,
                      logic ? GPIO_PIN_TYPE_STD_WPU : GPIO_PIN_TYPE_STD_WPD); // ternary operator for the lols
     but_normal[butId] = logic;
 }
+
 
 // initButtons: Initialise the variables and interrupts associated with the set of buttons
 // defined by the constants in the buttons2.h header file.
@@ -95,7 +95,7 @@ void UPButIntHandler(void)
 {
     flagU = 1;
     GPIOIntClear(UP_BUT_PORT_BASE, UP_BUT_PIN);
-    GPIOIntDisable(UP_BUT_PORT_BASE, UP_BUT_PIN);
+    GPIOIntDisable(UP_BUT_PORT_BASE, UP_BUT_PIN);   // prevent a double button interrupt
 }
 
 
@@ -130,10 +130,8 @@ void RIGHTButIntHandler(void)
 // buttons once and updates variables associated with the buttons if
 // necessary.  It is efficient enough to be part of an ISR, e.g. from
 // a SysTick interrupt.
-// Debounce algorithm: A state machine is associated with each button.
-// A state change occurs only after NUM_BUT_POLLS consecutive polls have
-// read the pin in the opposite condition, before the state changes and
-// a flag is set.  Set NUM_BUT_POLLS according to the polling rate.
+// Debounce algorithm disabled by setting NUM_BUT_POLLS to 1. Debounce
+// now handled in detectHold()
 void updateButtons(void)
 {
     bool but_value[NUM_BUTS];
@@ -192,7 +190,7 @@ vector_inputs readButtonFlags(vector_inputs inputFlags)
     {
         inputFlags.U = 1;
         flagU = 0;
-        GPIOIntEnable(UP_BUT_PORT_BASE, UP_BUT_PIN);
+        GPIOIntEnable(UP_BUT_PORT_BASE, UP_BUT_PIN);    // re-enable button ints
     }
 
     if (flagD == 1)
@@ -222,7 +220,7 @@ vector_inputs readButtonFlags(vector_inputs inputFlags)
 
 // Function acts as a detector for the a button held down
 // Checks how long a button is held down depending on a limit
-int detect_hold(uint8_t butName, int lim)
+int detectHold(uint8_t butName, int lim)
 {
     uint8_t fin_flag = 0;
     uint8_t butState;

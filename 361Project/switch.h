@@ -1,6 +1,7 @@
-/* switch.h
+/*
+ * switch.h
  *
- * Init, detect and flag interrupts on the switch
+ * Init, detect and flag using interrupts on switch toggle
  * FitnessMonGroup8
  * J. Zhu, G. Lay, S. Allen
  */
@@ -21,8 +22,14 @@
 #define SW1_PORT_BASE GPIO_PORTA_BASE
 #define SW1_PIN GPIO_PIN_7
 
+
 void checkSwitch ();
+
 void switchIntHandler (void);
+
 uint8_t getSwitchPos();
+
 void initSwitch(void);
+
+
 #endif /* SWITCH_H_ */

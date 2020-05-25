@@ -1,12 +1,12 @@
-/*******************************************************
+#ifndef STEPCOUNTER_H_
+#define STEPCOUNTER_H_
+
+/*
  * stepCounter.h
  *
  * FitnessMonGroup8
  * S. Allen, J. Zhu, G. Lay
- *******************************************************/
-
-#ifndef STEPCOUNTER_H_
-#define STEPCOUNTER_H_
+ */
 
 #include <stdint.h>
 #include <stdbool.h>

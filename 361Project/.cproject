@@ -87,7 +87,7 @@
 						</tool>
 					</fileInfo>
 					<sourceEntries>
-						<entry excluding="ADC.c|butsTest4.c|uartDemo.c|ADCdemo1.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="Redundant|Redundant/uartDemo.c|Redundant/butsTest4.c|Redundant/ADCdemo1.c|Redundant/ADC.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>

@@ -1,3 +1,10 @@
+/*
+ * FitnessMonGroup8
+ * S. Allen, J. Zhu, G. Lay
+ * Module unchanged
+ */
+
+
 //*****************************************************************************
 //
 // ustdlib.c - Simple standard library functions.

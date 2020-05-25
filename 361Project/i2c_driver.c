@@ -1,5 +1,4 @@
-/**********************************************************
- *
+ /*
  * i2c_driver.c
  *
  * Helper functions used to communicate with peripherals
@@ -10,10 +9,11 @@
  * https://reference.digilentinc.com
  * /orbit_boosterpack/orbit_boosterpack
  *
- * C. P. Moore
+ * FitnessMonGroup8
+ * S. Allen, J. Zhu, G. Lay
+ * Module by C. P. Moore
  * 11 Feb 2020
- *
- **********************************************************/
+ */
 
 #include <stdint.h>
 #include <stdbool.h>

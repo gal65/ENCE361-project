@@ -1,4 +1,5 @@
-/* Display.h
+/*
+ * Display.h
  *
  * Contains functions to initiate OLED display,
  * form strings, send lines to display, and refresh.
@@ -50,7 +51,7 @@ inline void redrawDisplay(void)
 
 
 // Swap the display mode depending on the current input and the
-uint8_t swap_disp(uint8_t dispmode)
+uint8_t swapDisp(uint8_t dispmode)
 {
     uint8_t next_disp;
 
@@ -146,7 +147,7 @@ void displayUpdateFloatStr(char *str1, char *str2, char *float_string,
 
 
 // Swaps the units of the display
-uint8_t swap_units(uint8_t unitMode)
+uint8_t swapUnits(uint8_t unitMode)
 {
     if (unitMode == KM)
     {

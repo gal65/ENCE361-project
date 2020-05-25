@@ -1,5 +1,6 @@
-/* switch.c
- * Init, detect and flag interrupts on the switch
+/*
+ * switch.c
+ * Init, detect and flag using interrupts on switch toggle
  *
  * FitnessMonGroup8
  * J. Zhu, G. Lay, S. Allen
@@ -15,6 +16,7 @@ void checkSwitch (){
     switchPos = GPIOPinRead(SW1_PORT_BASE, SW1_PIN) == SW1_PIN;
 }
 
+
 // Interrupt triggers reads the gpio and sets it (so its not necessary to always read the pin)
 void switchIntHandler (void)
 {
@@ -22,10 +24,12 @@ void switchIntHandler (void)
     GPIOIntClear(SW1_PORT_BASE, SW1_PIN);
 }
 
+
 //Returns the value stored for the switch position (does not read the pin)
 uint8_t getSwitchPos(){
     return switchPos;
 }
+
 
 //Initiates the switch gpio and interrupt which triggers on rising and falling edges
 void initSwitch(void) {

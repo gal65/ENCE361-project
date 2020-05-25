@@ -1,4 +1,5 @@
-/* readAcc.c
+/*
+ * readAcc.c
  *
  * Example code which reads acceleration in
  * three dimensions and displays the resulting data on
@@ -9,7 +10,9 @@
  * Based on code by C. P. Moore
  */
 
+
 #include <readAcc.h>
+
 
 // Initiate accelerometer
 void initAccl (void)
@@ -65,6 +68,7 @@ void initAccl (void)
     I2CGenTransmit(toAccl, 1, WRITE, ACCL_ADDR);
 }
 
+
 // function to read accelerometer
 vector3_t getAcclData (void)
 {
@@ -119,7 +123,3 @@ vector3_t calculate_mean(circBuf_t *buffer_x, circBuf_t *buffer_y, circBuf_t *bu
 
     return average;
 }
-
-
-
-
